@@ -152,9 +152,7 @@
 - (void)updateWithProc:(PSProc *)proc columns:(NSArray *)columns
 {
 	self.textLabel.text = proc.name;
-	if (proc.uid == 0)
-		self.textLabel.textColor = [UIColor colorWithRed:0.55 green:0.55 blue:1.0 alpha:1.0];
-	else if (@available(iOS 13, *))
+	if (@available(iOS 13, *))
 		self.textLabel.textColor = [UIColor labelColor];
 	else
 		self.textLabel.textColor = [UIColor blackColor];
