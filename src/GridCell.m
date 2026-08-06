@@ -100,7 +100,7 @@ static bool psIsUserApp(PSProc *proc)
 	if (self.dividers)
 		for (UIView *item in self.dividers) [item removeFromSuperview];
 	// Create new views
-	self.labels = [NSMutableArray arrayWithCapacity:columns.count-1];
+	self.labels = [NSMutableArray arrayWithCapacity:columns.count > 0 ? columns.count - 1 : 0];
 	self.dividers = [NSMutableArray arrayWithCapacity:columns.count];
 	self.extendArgsLabel = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"FullWidthCommandLine"] boolValue];
 	self.colorDiffs = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ColorDiffs"] boolValue];
