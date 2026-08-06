@@ -24,7 +24,7 @@
 		AC6A898F259DCDBA009AC84F /* UIButtonBarHamburger@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AC6A8931259DCDBA009AC84F /* UIButtonBarHamburger@2x.png */; };
 		AC6A8991259DCDBA009AC84F /* Icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = AC6A8933259DCDBA009AC84F /* Icon-72.png */; };
 		AC6A8992259DCDBA009AC84F /* story.html in Resources */ = {isa = PBXBuildFile; fileRef = AC6A8934259DCDBA009AC84F /* story.html */; };
-		AC6A8993259DCDBA009AC84F /* LaunchScreen.storyboardc in Resources */ = {isa = PBXBuildFile; fileRef = AC6A8935259DCDBA009AC84F /* LaunchScreen.storyboardc */; };
+		AC6A8993259DCDBA009AC84F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AC6A8935259DCDBA009AC84F /* LaunchScreen.storyboard */; };
 		AC6A8994259DCDBA009AC84F /* Default-736h@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = AC6A8937259DCDBA009AC84F /* Default-736h@3x.png */; };
 		AC6A8995259DCDBA009AC84F /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AC6A8938259DCDBA009AC84F /* Icon@2x.png */; };
 		AC6A8996259DCDBA009AC84F /* Icon-76~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AC6A8939259DCDBA009AC84F /* Icon-76~ipad.png */; };
@@ -76,7 +76,7 @@
 		AC6A8932259DCDBA009AC84F /* CocoaTop_ */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CocoaTop_; sourceTree = "<group>"; };
 		AC6A8933259DCDBA009AC84F /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-72.png"; sourceTree = "<group>"; };
 		AC6A8934259DCDBA009AC84F /* story.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = story.html; sourceTree = "<group>"; };
-		AC6A8936259DCDBA009AC84F /* Base */ = {isa = PBXFileReference; lastKnownFileType = wrapper.storyboardc; name = Base; path = Base.lproj/LaunchScreen.storyboardc; sourceTree = "<group>"; };
+		AC6A8936259DCDBA009AC84F /* Base */ = {isa = PBXFileReference; lastKnownFileType = wrapper.storyboardc; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AC6A8937259DCDBA009AC84F /* Default-736h@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-736h@3x.png"; sourceTree = "<group>"; };
 		AC6A8938259DCDBA009AC84F /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		AC6A8939259DCDBA009AC84F /* Icon-76~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-76~ipad.png"; sourceTree = "<group>"; };
@@ -248,7 +248,7 @@
 				AC6A8932259DCDBA009AC84F /* CocoaTop_ */,
 				AC6A8933259DCDBA009AC84F /* Icon-72.png */,
 				AC6A8934259DCDBA009AC84F /* story.html */,
-				AC6A8935259DCDBA009AC84F /* LaunchScreen.storyboardc */,
+				AC6A8935259DCDBA009AC84F /* LaunchScreen.storyboard */,
 				AC6A8937259DCDBA009AC84F /* Default-736h@3x.png */,
 				AC6A8938259DCDBA009AC84F /* Icon@2x.png */,
 				AC6A8939259DCDBA009AC84F /* Icon-76~ipad.png */,
@@ -422,7 +422,7 @@
 				AC6A8997259DCDBA009AC84F /* Default-568h@2x.png in Resources */,
 				AC6A899B259DCDBA009AC84F /* Default.png in Resources */,
 				AC6A8994259DCDBA009AC84F /* Default-736h@3x.png in Resources */,
-				AC6A8993259DCDBA009AC84F /* LaunchScreen.storyboardc in Resources */,
+				AC6A8993259DCDBA009AC84F /* LaunchScreen.storyboard in Resources */,
 				AC6A8999259DCDBA009AC84F /* Icon-Small-50.png in Resources */,
 				AC6A8995259DCDBA009AC84F /* Icon@2x.png in Resources */,
 				AC6A8985259DCDBA009AC84F /* Default-1024h@2x.png in Resources */,
@@ -464,12 +464,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		AC6A8935259DCDBA009AC84F /* LaunchScreen.storyboardc */ = {
+		AC6A8935259DCDBA009AC84F /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				AC6A8936259DCDBA009AC84F /* Base */,
 			);
-			name = LaunchScreen.storyboardc;
+			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
