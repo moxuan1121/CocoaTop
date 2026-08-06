@@ -13,6 +13,8 @@
 
 -(void)viewDidLoad {
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor clearColor];
+    self.view.opaque = NO;
     controller.view.frame = self.view.bounds;
     controller.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:controller.view];
@@ -68,8 +70,12 @@
     }
 	// Create UIWindow
 	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+	self.window.backgroundColor = [UIColor clearColor];
+	self.window.opaque = NO;
 	// Allocate the navigation controller
 	self.navigationController = [[UINavigationController alloc] initWithRootViewController:[RootTabMaskController new]];
+	self.navigationController.view.backgroundColor = [UIColor clearColor];
+	self.navigationController.view.opaque = NO;
 	// Set the navigation controller as the window's root view controller and display.
 	self.window.rootViewController = self.navigationController;
 	[self.window makeKeyAndVisible];
