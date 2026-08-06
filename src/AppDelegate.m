@@ -13,9 +13,12 @@
 
 -(void)viewDidLoad {
     [super viewDidLoad];
-    [self.view addSubview: controller.view];
+    controller.view.frame = self.view.bounds;
+    controller.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [self.view addSubview:controller.view];
+    [controller didMoveToParentViewController:self];
     if (@available(iOS 11, *)) {
-        mask = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+        mask = [[UIView alloc] initWithFrame:self.view.bounds];
         mask.translatesAutoresizingMaskIntoConstraints = NO;
         if (@available(iOS 13, *)) {
             mask.backgroundColor = [UIColor colorWithDynamicProvider:^(UITraitCollection *collection) {
@@ -46,7 +49,7 @@
         }
     }
     if (controller.view != nil) {
-        controller.view.frame = self.view.frame;
+        controller.view.frame = self.view.bounds;
     }
 }
 
