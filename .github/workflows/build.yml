@@ -57,6 +57,8 @@ jobs:
           export PATH="$(brew --prefix make)/libexec/gnubin:$PATH"
           make -C src clean
           make -C src package FINALPACKAGE=1
+          test -n "$(find src/.theos -type d -name "LaunchScreen.storyboardc" -print -quit)"
+          test -n "$(find src/.theos -type f -name "LaunchScreenArtwork.png" -print -quit)"
           find src/packages -type f -name "*.deb" -print
           test -n "$(find src/packages -type f -name "*.deb" -print -quit)"
 
