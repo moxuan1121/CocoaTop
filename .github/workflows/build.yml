@@ -47,7 +47,7 @@ jobs:
         run: |
           bash -c "$(curl -fsSL https://raw.githubusercontent.com/roothide/theos/master/bin/install-theos)"
           test -f "$THEOS/makefiles/common.mk"
-          "$THEOS/bin/install-sdk" 14.5
+          "$THEOS/bin/install-sdk" iPhoneOS14.5
           test -d "$THEOS/sdks/iPhoneOS14.5.sdk"
 
       - name: Build RootHide package
