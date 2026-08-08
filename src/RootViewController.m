@@ -368,7 +368,10 @@
 {
 	// When configId changes, all cells are reconfigured
 	configId++;
-	columns = [PSColumn psGetShownColumnsWithWidth:UIApplication.sharedApplication.keyWindow.bounds.size.width];
+	CGFloat availableWidth = self.tableView.bounds.size.width;
+	if (availableWidth <= 0)
+		availableWidth = self.view.bounds.size.width;
+	columns = [PSColumn psGetShownColumnsWithWidth:MAX((NSInteger)availableWidth, 0)];
 	// Find sort column and create table header
 	filterColumn = [PSColumn psColumnWithTag:[[[CocoaTopPreferences sharedPreferences] objectForKey:@"FilterColumn"] integerValue]];
 	[self searchBarTextDidEndEditing:filter];
