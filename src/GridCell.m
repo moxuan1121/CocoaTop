@@ -249,8 +249,8 @@
 		label.textAlignment = footer && col.getSummary ? col.align : NSTextAlignmentCenter;
 		label.font = footer ? [UIFont systemFontOfSize:16.0] : [UIFont boldSystemFontOfSize:16.0];
 		label.adjustsFontSizeToFitWidth = YES;
-\t\tlabel.minimumScaleFactor = 0.6;
-\t\tlabel.autoresizingMask = UIViewAutoresizingFlexibleHeight;
+		label.minimumScaleFactor = 0.6;
+		label.autoresizingMask = UIViewAutoresizingFlexibleHeight;
 		label.text = footer ? @"-" : col.name;
         if (@available(iOS 13, *)) {
             label.textColor = [UIColor labelColor];
