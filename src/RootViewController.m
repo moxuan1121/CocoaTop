@@ -343,7 +343,7 @@
 	if (!navigationBar || statusLabel.superview != navigationBar)
 		return;
 	CGFloat sideInset = 55.0;
-	statusLabel.frame = CGRectMake(sideInset, 0, MAX(CGRectGetWidth(navigationBar.bounds) - sideInset * 2, 1.0),
+	statusLabel.frame = CGRectMake(sideInset, -1.0, MAX(CGRectGetWidth(navigationBar.bounds) - sideInset * 2, 1.0),
 		CGRectGetHeight(navigationBar.bounds));
 }
 
@@ -356,7 +356,7 @@
 	}
 	[self.navigationController.navigationBar layoutIfNeeded];
 	[self layoutStatusLabel];
-	statusLabel.text = [NSString stringWithFormat:@"进程：%lu  可用：%.1f MB  CPU：%.1f%%",
+	statusLabel.text = [NSString stringWithFormat:@"进程：%lu 可用：%.1f MB CPU：%.1f%%",
 		(unsigned long)procs.count, (float)procs.memFree / 1024 / 1024, (float)procs.totalCpu / 10];
 }
 
