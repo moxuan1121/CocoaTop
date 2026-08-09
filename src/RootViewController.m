@@ -356,7 +356,7 @@
 	}
 	[self.navigationController.navigationBar layoutIfNeeded];
 	[self layoutStatusLabel];
-	statusLabel.text = [NSString stringWithFormat:@"进程：%lu   可用：%.1f MB   CPU：%.1f%%",
+	statusLabel.text = [NSString stringWithFormat:@"当前进程数:%lu   可用运存:%.1f MB   CPU占用:%.1f%%",
 		(unsigned long)procs.count, (float)procs.memFree / 1024 / 1024, (float)procs.totalCpu / 10];
 }
 
