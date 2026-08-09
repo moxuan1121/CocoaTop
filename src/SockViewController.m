@@ -89,7 +89,7 @@ NSURL *open2URL;
 	//self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"返回"
 	//	style: UIBarButtonItemStyleDone target:self action:@selector(backWithoutAnimation)];
 
-    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Back"
+    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"返回"
         style: UIBarButtonItemStyleDone target:self action:@selector(backWithoutAnimation)];
 	viewMode = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ProcInfoMode"] integerValue];
 	NSMutableArray *modeItems = [NSMutableArray arrayWithObjects:ColumnModeName count:ColumnModes];
