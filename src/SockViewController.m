@@ -5,7 +5,7 @@
 #import "Sock.h"
 #import "CocoaTopPreferences.h"
 
-NSString *ColumnModeName[ColumnModes] = {@"Summary", @"Threads", @"Open files", @"Open ports", @"Modules"};
+NSString *ColumnModeName[ColumnModes] = {@"概览", @"线程", @"打开的文件", @"打开的端口", @"模块"};
 NSString *messageCopy=@"";
 NSString *titleA=@"";
 NSURL *open2URL;
@@ -86,7 +86,7 @@ NSURL *open2URL;
 - (void)viewDidLoad
 {
 	[super viewDidLoad];
-	//self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Back"
+	//self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"返回"
 	//	style: UIBarButtonItemStyleDone target:self action:@selector(backWithoutAnimation)];
 
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Back"
@@ -140,7 +140,7 @@ NSURL *open2URL;
 	}
 	// Update titlebar
 	[proc update];
-	self.navigationItem.title = [procName stringByAppendingFormat:@" (CPU %.1f%%)", (float)proc.pcpu / 10];
+	self.navigationItem.title = [procName stringByAppendingFormat:@"（CPU %.1f%%）", (float)proc.pcpu / 10];
 	// Update tableview
     if ([socks refreshWithMode:viewMode] && socks.proc.pid != 0) {
         if (@available(iOS 7, *)) {
