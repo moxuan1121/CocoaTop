@@ -229,11 +229,15 @@
 
 - (instancetype)initWithColumns:(NSArray *)columns size:(CGSize)size footer:(bool)footer
 {
-    if (@available(iOS 6.0, *)) {
-        self = [super initWithReuseIdentifier:@"Header"];
+    self = [super initWithReuseIdentifier:@"Header"];
+    if (footer) {
+        UIView *clearBackground = [[UIView alloc] initWithFrame:self.bounds];
+        clearBackground.backgroundColor = [UIColor clearColor];
+        self.backgroundView = clearBackground;
+        self.backgroundColor = [UIColor clearColor];
+        self.contentView.backgroundColor = [UIColor clearColor];
+    } else if (@available(iOS 6.0, *)) {
         self.backgroundView = [[NSClassFromString(@"_UITableViewHeaderFooterView") alloc] initWithFrame:self.bounds];
-    } else {
-        self = [super initWithReuseIdentifier:@"Header"];
     }
     
 	self.labels = [NSMutableArray arrayWithCapacity:columns.count];
@@ -243,8 +247,8 @@
 		UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(totalCol + 2, 0, col.width - 4, size.height)];
 		[self.labels addObject:label];
 		label.textAlignment = footer && col.getSummary ? col.align : NSTextAlignmentCenter;
-		label.font = footer && col != columns[0] ? [UIFont systemFontOfSize:12.0] : [UIFont boldSystemFontOfSize:16.0];
-		label.adjustsFontSizeToFitWidth = YES;
+		label.font = footer ? [UIFont systemFontOfSize:16.0] : [UIFont boldSystemFontOfSize:16.0];
+		label.adjustsFontSizeToFitWidth = YES;\n\t\tlabel.minimumScaleFactor = 0.6;\n\t\tlabel.autoresizingMask = UIViewAutoresizingFlexibleHeight;
 		label.text = footer ? @"-" : col.name;
         if (@available(iOS 13, *)) {
             label.textColor = [UIColor labelColor];
@@ -301,7 +305,14 @@
 	for (PSColumn *col in columns)
 		if (col.getSummary) {
 			UILabel *label = (UILabel *)[self viewWithTag:col.tag + 1];
-			if (label) label.text = col.getSummary(procs);
+			if (label) {
+				NSString *summary = col.getSummary(procs);
+				summary = [summary stringByReplacingOccurrencesOfString:@"Total processes:" withString:@"进程总数："];
+				summary = [summary stringByReplacingOccurrencesOfString:@"Shown processes:" withString:@"显示进程："];
+				summary = [summary stringByReplacingOccurrencesOfString:@"mobile:" withString:@"用户进程："];
+				summary = [summary stringByReplacingOccurrencesOfString:@"UIApps:" withString:@"界面应用："];
+				label.text = summary;
+			}
 		}
 }
 
