@@ -13,7 +13,10 @@
 
 -(void)viewDidLoad {
     [super viewDidLoad];
-    controller.view.frame = self.view.bounds;\n    controller.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;\n    [self.view addSubview:controller.view];\n    [controller didMoveToParentViewController:self];
+    controller.view.frame = self.view.bounds;
+    controller.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [self.view addSubview:controller.view];
+    [controller didMoveToParentViewController:self];
     if (@available(iOS 11, *)) {
         mask = [[UIView alloc] initWithFrame:self.view.bounds];
         mask.translatesAutoresizingMaskIntoConstraints = NO;
