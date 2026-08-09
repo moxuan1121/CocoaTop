@@ -134,6 +134,10 @@
 		target:self action:@selector(refreshProcs:)];
 	statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width - (isPhone ? 80 : 150), 40)];
 	statusLabel.backgroundColor = [UIColor clearColor];
+	statusLabel.numberOfLines = 2;
+	statusLabel.font = [UIFont systemFontOfSize:13.0];
+	statusLabel.adjustsFontSizeToFitWidth = YES;
+	statusLabel.minimumScaleFactor = 0.75;
 	self.navigationItem.leftBarButtonItems = @[self.navigationItem.leftBarButtonItem, [[UIBarButtonItem alloc] initWithCustomView:statusLabel]];
 
 	UITapGestureRecognizer *twoTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideShowNavBar:)];
@@ -250,33 +254,6 @@
 	[procs filter:filter.text column:filterColumn];
 	[self.tableView reloadData];
 	[self updateTopSummary];
-    bool shortLabel;
-    if (@available(iOS 8, *)) {
-        UIUserInterfaceSizeClass sizeClass;
-        if (self.view.window == nil) {
-            sizeClass = [UIApplication sharedApplication].keyWindow.traitCollection.horizontalSizeClass;
-        } else {
-            sizeClass = self.view.window.traitCollection.horizontalSizeClass;
-        }
-        shortLabel = (sizeClass == UIUserInterfaceSizeClassCompact);
-    } else {
-        shortLabel = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
-    }
-    
-    if (shortLabel) {
-        statusLabel.frame = CGRectMake(statusLabel.frame.origin.x, statusLabel.frame.origin.y, self.tableView.frame.size.width - 80, 40);
-        statusLabel.text = [NSString stringWithFormat:@"可用：%.1f MB  CPU：%.1f%%",
-        (float)procs.memFree / 1024 / 1024,
-        (float)procs.totalCpu / 10];
-    } else {
-        statusLabel.frame = CGRectMake(statusLabel.frame.origin.x, statusLabel.frame.origin.y, self.tableView.frame.size.width - 150, 40);
-        statusLabel.text = [NSString stringWithFormat:@"进程：%lu  线程：%lu  可用：%.1f/%.1f MB  CPU：%.1f%%",
-        (unsigned long)procs.totalCount,
-        (unsigned long)procs.threadCount,
-        (float)procs.memFree / 1024 / 1024,
-        (float)procs.memTotal / 1024 / 1024,
-        (float)procs.totalCpu / 10];
-    }
 	// Query network statistics, cause no one did it before.
 	if (![_timer isKindOfClass:[NSTimer class]])
 		[procs.nstats query];
@@ -362,13 +339,29 @@
 - (void)updateTopSummary
 {
 	BOOL showSummary = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ShowFooter"] boolValue];
-	if (!showSummary || !procs) {
-		self.navigationItem.prompt = nil;
+	self.navigationItem.prompt = nil;
+	if (!procs) {
+		statusLabel.text = nil;
+		return;
+	}
+	BOOL compact = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
+	if (@available(iOS 8, *))
+		compact = self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact;
+	CGFloat width = self.tableView.bounds.size.width - (compact ? 80.0 : 150.0);
+	statusLabel.frame = CGRectMake(0, 0, MAX(width, 1.0), 44.0);
+	NSString *status = compact
+		? [NSString stringWithFormat:@"可用：%.1f MB  CPU：%.1f%%", (float)procs.memFree / 1024 / 1024, (float)procs.totalCpu / 10]
+		: [NSString stringWithFormat:@"进程：%lu  线程：%lu  可用：%.1f/%.1f MB  CPU：%.1f%%", (unsigned long)procs.totalCount,
+			(unsigned long)procs.threadCount, (float)procs.memFree / 1024 / 1024,
+			(float)procs.memTotal / 1024 / 1024, (float)procs.totalCpu / 10];
+	if (!showSummary) {
+		statusLabel.text = status;
 		return;
 	}
 	NSString *memory = [NSByteCountFormatter stringFromByteCount:procs.memUsed countStyle:NSByteCountFormatterCountStyleMemory];
-	self.navigationItem.prompt = [NSString stringWithFormat:@"进程 %lu  ·  内存 %@  ·  CPU %.1f%%  ·  运行 %d/%d",
+	NSString *summary = [NSString stringWithFormat:@"进程 %lu · 内存 %@ · CPU %.1f%% · 运行 %d/%d",
 		(unsigned long)procs.count, memory, (float)procs.totalCpu / 10, procs.runningCount, procs.coresCount];
+	statusLabel.text = [NSString stringWithFormat:@"%@\n%@", summary, status];
 }
 
 - (void)columnConfigChanged
@@ -414,20 +407,6 @@
     if (self.view.window != nil) {
         if (@available(iOS 8, *)) {
             if (lastHorizationWindowSizeClass != self.view.window.traitCollection.horizontalSizeClass || lastHorizationWindowWidth != self.view.bounds.size.width) {
-                if (self.view.window.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
-                    statusLabel.frame = CGRectMake(statusLabel.frame.origin.x, statusLabel.frame.origin.y, self.tableView.frame.size.width - 80, 40);
-                    statusLabel.text = [NSString stringWithFormat:@"可用：%.1f MB  CPU：%.1f%%",
-                    (float)procs.memFree / 1024 / 1024,
-                    (float)procs.totalCpu / 10];
-                } else {
-                    statusLabel.frame = CGRectMake(statusLabel.frame.origin.x, statusLabel.frame.origin.y, self.tableView.frame.size.width - 150, 40);
-                    statusLabel.text = [NSString stringWithFormat:@"进程：%lu  线程：%lu  可用：%.1f/%.1f MB  CPU：%.1f%%",
-                    (unsigned long)procs.totalCount,
-                    (unsigned long)procs.threadCount,
-                    (float)procs.memFree / 1024 / 1024,
-                    (float)procs.memTotal / 1024 / 1024,
-                    (float)procs.totalCpu / 10];
-                }
                 lastHorizationWindowSizeClass = self.view.window.traitCollection.horizontalSizeClass;
                 lastHorizationWindowWidth = self.view.bounds.size.width;
                 [self reappearAllView];
