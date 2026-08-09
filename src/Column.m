@@ -598,10 +598,18 @@ NSString *psProcessCpuTime(unsigned int ptime)
 	for (NSNumber* order in columnOrder) {
 		PSColumn *col = [PSColumn psColumnWithTag:order.unsignedIntegerValue];
 		if (!col) continue;
-		if (width < col.minwidth) break;
+		if (width < col.minwidth) {
+			// Keep one usable column even during an initially zero-width or
+			// extremely narrow split-screen layout.
+			if (shownCols.count == 0) {
+				col.width = MAX((NSInteger)width, 1);
+				[shownCols addObject:col];
+			}
+			break;
+		}
 		[shownCols addObject:col];
 		col.width = col.minwidth;
-		width -= col.width;
+		width = col.width >= width ? 0 : width - col.width;
 		if (col.style & ColumnStyleExtend)
 			extendedcol = col;
 	}
@@ -699,7 +707,7 @@ NSString *psProcessCpuTime(unsigned int ptime)
 			col.width = 0;
 		else
 			col.width = col.minwidth;
-		width -= col.width;
+		width = col.width >= width ? 0 : width - col.width;
 		if (col.style & ColumnStyleExtend)
 			extendedcol = col;
 	}
