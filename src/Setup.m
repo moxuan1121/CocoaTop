@@ -2,6 +2,25 @@
 #import "Setup.h"
 #import "CocoaTopPreferences.h"
 
+
+static NSString *psChineseSettingValue(NSString *value)
+{
+	if (!value.length) return value;
+	static NSDictionary *translations;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		translations = @{
+			@"Never": @"从不",
+			@"Bundle Identifier": @"应用标识符",
+			@"Bundle Name": @"应用名称",
+			@"Bundle Display Name": @"应用显示名称",
+			@"Executable Name": @"可执行文件名",
+			@"Executable With Args": @"可执行文件及参数"
+		};
+	});
+	return translations[value] ?: value;
+}
+
 @interface SelectFromList : UITableViewController
 @property (strong) NSArray *list;
 @property (strong) NSString *option;
@@ -32,7 +51,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
 	[super viewWillAppear:animated];
-	self.navigationItem.title = @"Settings";
+	self.navigationItem.title = @"设置";
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -42,7 +61,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-	return @"Choose";
+	return @"请选择";
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -62,7 +81,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	self.value = [tableView cellForRowAtIndexPath:indexPath].textLabel.text;
+	self.value = self.list[indexPath.row];
 	[[CocoaTopPreferences sharedPreferences] setObject:self.value forKey:self.option];
 	[self.navigationController popViewControllerAnimated:YES];
 }
@@ -109,24 +128,24 @@
 
 - (IBAction)factoryReset
 {
-	[[[UIAlertView alloc] initWithTitle:@"Reset" message:@"Reset settings to default values?" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil] show];
+	[[[UIAlertView alloc] initWithTitle:@"恢复默认" message:@"确定要将所有设置恢复为默认值吗？" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil] show];
 }
 
 - (void)viewDidLoad
 {
 	[super viewDidLoad];
 	self.navigationItem.title = @"Settings";
-	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Reset" style:UIBarButtonItemStylePlain
+	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"恢复默认" style:UIBarButtonItemStylePlain
 		target:self action:@selector(factoryReset)];
 	optionsList = @[
-		[OptionItem withAccessory:[UILabel class] key:@"UpdateInterval" label:@"Update interval (seconds)" chooseFrom:@[@"0.5",@"1",@"2",@"3",@"5",@"10",@"Never"]],
-		[OptionItem withAccessory:[UILabel class] key:@"FirstColumnStyle" label:@"First column style" chooseFrom:@[@"Bundle Identifier",@"Bundle Name",@"Bundle Display Name",@"Executable Name",@"Executable With Args"]],
-		[OptionItem withAccessory:[UISwitch class] key:@"FullWidthCommandLine" label:@"Full width command line" chooseFrom:nil],
-		[OptionItem withAccessory:[UISwitch class] key:@"ShortenPaths" label:@"Show short (symlinked) paths" chooseFrom:nil],
-		[OptionItem withAccessory:[UISwitch class] key:@"AutoJumpNewProcess" label:@"Auto scroll to new/terminated processes" chooseFrom:nil],
-		[OptionItem withAccessory:[UISwitch class] key:@"ShowHeader" label:@"Show column sort header" chooseFrom:nil],
-		[OptionItem withAccessory:[UISwitch class] key:@"ShowFooter" label:@"Show column totals (footer)" chooseFrom:nil],
-		[OptionItem withAccessory:[UISwitch class] key:@"ColorDiffs" label:@"Highlight changing values" chooseFrom:nil],
+		[OptionItem withAccessory:[UILabel class] key:@"UpdateInterval" label:@"刷新间隔（秒）" chooseFrom:@[@"0.5",@"1",@"2",@"3",@"5",@"10",@"Never"]],
+		[OptionItem withAccessory:[UILabel class] key:@"FirstColumnStyle" label:@"第一列显示方式" chooseFrom:@[@"Bundle Identifier",@"Bundle Name",@"Bundle Display Name",@"Executable Name",@"Executable With Args"]],
+		[OptionItem withAccessory:[UISwitch class] key:@"FullWidthCommandLine" label:@"命令行占满剩余宽度" chooseFrom:nil],
+		[OptionItem withAccessory:[UISwitch class] key:@"ShortenPaths" label:@"显示缩短后的路径" chooseFrom:nil],
+		[OptionItem withAccessory:[UISwitch class] key:@"AutoJumpNewProcess" label:@"自动定位新增或结束的进程" chooseFrom:nil],
+		[OptionItem withAccessory:[UISwitch class] key:@"ShowHeader" label:@"显示列排序标题" chooseFrom:nil],
+		[OptionItem withAccessory:[UISwitch class] key:@"ShowFooter" label:@"在顶部显示汇总信息" chooseFrom:nil],
+		[OptionItem withAccessory:[UISwitch class] key:@"ColorDiffs" label:@"高亮变化的数值" chooseFrom:nil],
 	];
 }
 
@@ -149,7 +168,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-	return @"General";
+	return @"常规";
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -193,12 +212,12 @@
 				label.font = [UIFont systemFontOfSize:16.0];
 				label.textColor = [UIColor grayColor];
 				label.backgroundColor = [UIColor clearColor];
-				label.text = [[CocoaTopPreferences sharedPreferences] objectForKey:option.optionKey];
+				label.text = psChineseSettingValue([[CocoaTopPreferences sharedPreferences] objectForKey:option.optionKey]);
 				label.tag = indexPath.row + 1;
 				label.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleWidth;
 				[cell.contentView addSubview:label];
 			} else
-				label.text = [[CocoaTopPreferences sharedPreferences] objectForKey:option.optionKey];
+				label.text = psChineseSettingValue([[CocoaTopPreferences sharedPreferences] objectForKey:option.optionKey]);
 		}
 	}
 	return cell;
