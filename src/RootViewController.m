@@ -136,7 +136,7 @@
 	statusLabel.backgroundColor = [UIColor clearColor];
 	statusLabel.numberOfLines = 3;
 	statusLabel.textAlignment = NSTextAlignmentLeft;
-	statusLabel.font = [UIFont systemFontOfSize:15.0];
+	statusLabel.font = [UIFont systemFontOfSize:16.0];
 	statusLabel.adjustsFontSizeToFitWidth = YES;
 	statusLabel.minimumScaleFactor = 0.75;
 	self.navigationItem.leftBarButtonItems = @[self.navigationItem.leftBarButtonItem, [[UIBarButtonItem alloc] initWithCustomView:statusLabel]];
@@ -352,8 +352,15 @@
 		compact = self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact;
 	CGFloat width = self.tableView.bounds.size.width - (compact ? 80.0 : 150.0);
 	statusLabel.frame = CGRectMake(0, 0, MAX(width, 1.0), 66.0);
-	statusLabel.text = [NSString stringWithFormat:@"进程：%lu\n可用：%.1f MB\nCPU：%.1f%%",
+	NSString *status = [NSString stringWithFormat:@"进程：%lu\n可用：%.1f MB\nCPU：%.1f%%",
 		(unsigned long)procs.count, (float)procs.memFree / 1024 / 1024, (float)procs.totalCpu / 10];
+	NSMutableParagraphStyle *paragraph = [NSMutableParagraphStyle new];
+	paragraph.alignment = NSTextAlignmentLeft;
+	paragraph.lineSpacing = 1.0;
+	statusLabel.attributedText = [[NSAttributedString alloc] initWithString:status attributes:@{
+		NSFontAttributeName: [UIFont systemFontOfSize:16.0],
+		NSParagraphStyleAttributeName: paragraph
+	}];
 }
 
 - (void)columnConfigChanged
