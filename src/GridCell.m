@@ -227,39 +227,30 @@
 
 @implementation GridHeaderView
 
-- (instancetype)initWithColumns:(NSArray *)columns size:(CGSize)size footer:(bool)footer
+- (instancetype)initWithColumns:(NSArray *)columns size:(CGSize)size
 {
     self = [super initWithReuseIdentifier:@"Header"];
-    if (footer) {
-        UIView *clearBackground = [[UIView alloc] initWithFrame:self.bounds];
-        clearBackground.backgroundColor = [UIColor clearColor];
-        self.backgroundView = clearBackground;
-        self.backgroundColor = [UIColor clearColor];
-        self.contentView.backgroundColor = [UIColor clearColor];
-    } else {
-        UIView *headerBackground = [[UIView alloc] initWithFrame:self.bounds];
-        if (@available(iOS 13, *))
-            headerBackground.backgroundColor = [UIColor secondarySystemBackgroundColor];
-        else
-            headerBackground.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1.0];
-        headerBackground.opaque = YES;
-        self.backgroundView = headerBackground;
-        self.contentView.backgroundColor = [UIColor clearColor];
-        self.contentView.clipsToBounds = YES;
-    }
+    UIView *headerBackground = [[UIView alloc] initWithFrame:self.bounds];
+    if (@available(iOS 13, *))
+        headerBackground.backgroundColor = [UIColor secondarySystemBackgroundColor];
+    else
+        headerBackground.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1.0];
+    headerBackground.opaque = YES;
+    self.backgroundView = headerBackground;
+    self.contentView.backgroundColor = [UIColor clearColor];
+    self.contentView.clipsToBounds = YES;
     
 	self.labels = [NSMutableArray arrayWithCapacity:columns.count];
-	self.dividers = [NSMutableArray arrayWithCapacity:columns.count];
 	NSUInteger totalCol = 0;
 	for (PSColumn *col in columns) {
 		UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(totalCol + 4, 0, MAX(col.width - 8, 1), size.height)];
 		[self.labels addObject:label];
-		label.textAlignment = footer && col.getSummary ? col.align : NSTextAlignmentCenter;
-		label.font = footer ? [UIFont systemFontOfSize:12.0] : [UIFont boldSystemFontOfSize:13.0];
+		label.textAlignment = NSTextAlignmentCenter;
+		label.font = [UIFont boldSystemFontOfSize:13.0];
 		label.adjustsFontSizeToFitWidth = YES;
 		label.minimumScaleFactor = 0.75;
 		label.autoresizingMask = UIViewAutoresizingFlexibleHeight;
-		label.text = footer ? @"-" : col.name;
+		label.text = col.name;
         if (@available(iOS 13, *)) {
             label.textColor = [UIColor labelColor];
         } else {
@@ -299,12 +290,7 @@
 
 + (instancetype)headerWithColumns:(NSArray *)columns size:(CGSize)size
 {
-	return [[GridHeaderView alloc] initWithColumns:columns size:size footer:NO];
-}
-
-+ (instancetype)footerWithColumns:(NSArray *)columns size:(CGSize)size
-{
-	return [[GridHeaderView alloc] initWithColumns:columns size:size footer:YES];
+	return [[GridHeaderView alloc] initWithColumns:columns size:size];
 }
 
 - (void)sortColumnOld:(PSColumn *)oldCol New:(PSColumn *)newCol desc:(BOOL)desc
@@ -324,22 +310,6 @@
         label.textColor = self.tintColor;
 		label.text = [newCol.name stringByAppendingString:(desc ? @"\u25BC" : @"\u25B2")];
 	}
-}
-
-- (void)updateSummaryWithColumns:(NSArray *)columns procs:(PSProcArray *)procs
-{
-	for (PSColumn *col in columns)
-		if (col.getSummary) {
-			UILabel *label = (UILabel *)[self viewWithTag:col.tag + 1];
-			if (label) {
-				NSString *summary = col.getSummary(procs);
-				summary = [summary stringByReplacingOccurrencesOfString:@"Total processes:" withString:@"进程总数："];
-				summary = [summary stringByReplacingOccurrencesOfString:@"Shown processes:" withString:@"显示进程："];
-				summary = [summary stringByReplacingOccurrencesOfString:@"mobile:" withString:@"用户进程："];
-				summary = [summary stringByReplacingOccurrencesOfString:@"UIApps:" withString:@"界面应用："];
-				label.text = summary;
-			}
-		}
 }
 
 @end
