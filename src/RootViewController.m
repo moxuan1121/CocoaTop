@@ -106,6 +106,22 @@
 	}
 }
 
+- (void)viewSafeAreaInsetsDidChange
+{
+    [super viewSafeAreaInsetsDidChange];
+    if (@available(iOS 11, *)) {
+        // Let rows and the floating section summary use the full split-screen
+        // height instead of stopping above the bottom safe-area reservation.
+        UIEdgeInsets contentInset = self.tableView.contentInset;
+        contentInset.bottom = -self.view.safeAreaInsets.bottom;
+        self.tableView.contentInset = contentInset;
+
+        UIEdgeInsets indicatorInset = self.tableView.scrollIndicatorInsets;
+        indicatorInset.bottom = 0;
+        self.tableView.scrollIndicatorInsets = indicatorInset;
+    }
+}
+
 - (void)viewDidLoad {
 	[super viewDidLoad];
 	[UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
