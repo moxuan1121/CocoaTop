@@ -281,6 +281,22 @@
 	return self;
 }
 
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+
+    // UITableViewHeaderFooterView may inset contentView on newer iOS versions.
+    // Keep the grid titles vertically centred inside the full header height.
+    self.backgroundView.frame = self.bounds;
+    self.contentView.frame = self.bounds;
+    for (UILabel *label in self.labels) {
+        CGRect frame = label.frame;
+        frame.origin.y = 0;
+        frame.size.height = CGRectGetHeight(self.bounds);
+        label.frame = frame;
+    }
+}
+
 + (instancetype)headerWithColumns:(NSArray *)columns size:(CGSize)size
 {
 	return [[GridHeaderView alloc] initWithColumns:columns size:size footer:NO];
