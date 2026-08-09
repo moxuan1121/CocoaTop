@@ -34,7 +34,6 @@
 @implementation RootViewController
 {
 	GridHeaderView *header;
-	UILabel *topSummaryLabel;
 	UISearchBar *filter;
 	PSProcArray *procs;
 	NSTimer *timer;
@@ -382,33 +381,14 @@
 
 - (void)updateTopSummary
 {
-	if (!topSummaryLabel || !procs) return;
-	NSString *memory = [NSByteCountFormatter stringFromByteCount:procs.memUsed countStyle:NSByteCountFormatterCountStyleMemory];
-	topSummaryLabel.text = [NSString stringWithFormat:@"进程 %lu · 内存 %@ · CPU %.1f%% · 运行 %d/%d",
-		(unsigned long)procs.count, memory, (float)procs.totalCpu / 10, procs.runningCount, procs.coresCount];
-}
-
-- (void)layoutTopSummary
-{
-	if (!topSummaryLabel) return;
-	UINavigationController *navigationController = self.navigationController;
-	CGFloat height = 0;
-	CGFloat left = 12;
-	CGFloat right = 12;
-	if (@available(iOS 11, *)) {
-		UIEdgeInsets safeArea = navigationController.view.safeAreaInsets;
-		height = safeArea.top;
-		left = MAX(safeArea.left, 12);
-		right = MAX(safeArea.right, 12);
-	}
 	BOOL showSummary = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ShowFooter"] boolValue];
-	topSummaryLabel.hidden = !showSummary || height <= 0;
-	if (!topSummaryLabel.hidden) {
-		topSummaryLabel.frame = CGRectMake(left, 0, MAX(navigationController.view.bounds.size.width - left - right, 1), height);
-		if (topSummaryLabel.superview != navigationController.view)
-			[navigationController.view addSubview:topSummaryLabel];
-		[navigationController.view bringSubviewToFront:topSummaryLabel];
+	if (!showSummary || !procs) {
+		self.navigationItem.prompt = nil;
+		return;
 	}
+	NSString *memory = [NSByteCountFormatter stringFromByteCount:procs.memUsed countStyle:NSByteCountFormatterCountStyleMemory];
+	self.navigationItem.prompt = [NSString stringWithFormat:@"进程 %lu  ·  内存 %@  ·  CPU %.1f%%  ·  运行 %d/%d",
+		(unsigned long)procs.count, memory, (float)procs.totalCpu / 10, procs.runningCount, procs.coresCount];
 }
 
 - (void)columnConfigChanged
@@ -429,23 +409,7 @@
 	[header sortColumnOld:nil New:sortColumn desc:sortDescending];
 	[header addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(sortHeader:)]];
 
-	if (!topSummaryLabel) {
-		topSummaryLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-		topSummaryLabel.backgroundColor = [UIColor clearColor];
-		topSummaryLabel.font = [UIFont systemFontOfSize:12.0];
-		topSummaryLabel.textAlignment = NSTextAlignmentCenter;
-		topSummaryLabel.adjustsFontSizeToFitWidth = YES;
-		topSummaryLabel.minimumScaleFactor = 0.75;
-		topSummaryLabel.numberOfLines = 1;
-		if (@available(iOS 13, *))
-			topSummaryLabel.textColor = [UIColor labelColor];
-		else
-			topSummaryLabel.textColor = [UIColor blackColor];
-		[topSummaryLabel addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(scrollToBottom)]];
-		topSummaryLabel.userInteractionEnabled = YES;
-	}
 	[self updateTopSummary];
-	[self layoutTopSummary];
 }
 
 - (void)reappearAllView {
@@ -467,7 +431,6 @@
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    [self layoutTopSummary];
     if (self.view.window != nil) {
         if (@available(iOS 8, *)) {
             if (lastHorizationWindowSizeClass != self.view.window.traitCollection.horizontalSizeClass || lastHorizationWindowWidth != self.view.bounds.size.width) {
@@ -511,8 +474,7 @@
 	if (timer.isValid)
 		[timer invalidate];
 	header = nil;
-	[topSummaryLabel removeFromSuperview];
-	topSummaryLabel = nil;
+	self.navigationItem.prompt = nil;
 	columns = nil;
 }
 
@@ -742,7 +704,6 @@
 		[timer invalidate];
 	statusLabel = nil;
 	header = nil;
-	topSummaryLabel = nil;
 	sortColumn = nil;
 	filterColumn = nil;
 	procs = nil;
