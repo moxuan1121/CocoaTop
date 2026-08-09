@@ -139,7 +139,7 @@
 	statusLabel.font = [UIFont systemFontOfSize:16.0];
 	statusLabel.adjustsFontSizeToFitWidth = YES;
 	statusLabel.minimumScaleFactor = 0.75;
-	self.navigationItem.leftBarButtonItems = @[self.navigationItem.leftBarButtonItem, [[UIBarButtonItem alloc] initWithCustomView:statusLabel]];
+	statusLabel.userInteractionEnabled = NO;
 
 	UITapGestureRecognizer *twoTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideShowNavBar:)];
 	twoTap.numberOfTouchesRequired = 2;
@@ -337,6 +337,16 @@
 	// 已静默复制到剪贴板（不提示）
 }
 
+- (void)layoutStatusLabel
+{
+	UINavigationBar *navigationBar = self.navigationController.navigationBar;
+	if (!navigationBar || statusLabel.superview != navigationBar)
+		return;
+	CGFloat sideInset = 55.0;
+	statusLabel.frame = CGRectMake(sideInset, 0, MAX(CGRectGetWidth(navigationBar.bounds) - sideInset * 2, 1.0),
+		CGRectGetHeight(navigationBar.bounds));
+}
+
 - (void)updateTopSummary
 {
 	if (!procs) {
@@ -350,8 +360,9 @@
 	BOOL compact = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
 	if (@available(iOS 8, *))
 		compact = self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact;
-	CGFloat width = self.tableView.bounds.size.width - (compact ? 80.0 : 150.0);
-	statusLabel.frame = CGRectMake(0, 0, MAX(width, 1.0), 66.0);
+	(void)compact;
+	[self.navigationController.navigationBar layoutIfNeeded];
+	[self layoutStatusLabel];
 	NSString *status = [NSString stringWithFormat:@"进程：%lu\n可用：%.1f MB\nCPU：%.1f%%",
 		(unsigned long)procs.count, (float)procs.memFree / 1024 / 1024, (float)procs.totalCpu / 10];
 	NSMutableParagraphStyle *paragraph = [NSMutableParagraphStyle new];
@@ -403,6 +414,7 @@
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
+    [self layoutStatusLabel];
     if (self.view.window != nil) {
         if (@available(iOS 8, *)) {
             if (lastHorizationWindowSizeClass != self.view.window.traitCollection.horizontalSizeClass || lastHorizationWindowWidth != self.view.bounds.size.width) {
@@ -418,6 +430,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
 	[super viewWillAppear:animated];
+	[self.navigationController.navigationBar addSubview:statusLabel];
     if (@available(iOS 7, *)) {
         self.navigationController.navigationBar.barTintColor = nil;
     } else {
@@ -431,6 +444,7 @@
 	[super viewDidDisappear:animated];
 	if (timer.isValid)
 		[timer invalidate];
+	[statusLabel removeFromSuperview];
 	header = nil;
 	self.navigationItem.prompt = nil;
 	columns = nil;
