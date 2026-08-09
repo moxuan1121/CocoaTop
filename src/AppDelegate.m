@@ -17,37 +17,10 @@
     controller.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:controller.view];
     [controller didMoveToParentViewController:self];
-    if (@available(iOS 11, *)) {
-        mask = [[UIView alloc] initWithFrame:self.view.bounds];
-        mask.translatesAutoresizingMaskIntoConstraints = NO;
-        if (@available(iOS 13, *)) {
-            mask.backgroundColor = [UIColor colorWithDynamicProvider:^(UITraitCollection *collection) {
-                if (collection.userInterfaceStyle == UIUserInterfaceStyleDark) {
-                    return [UIColor colorWithWhite:.31 alpha:.85];
-                } else {
-                    return [UIColor colorWithWhite:.75 alpha:.85];
-                }
-            }];
-        } else {
-            mask.backgroundColor = [UIColor colorWithWhite:.75 alpha:.85];
-        }
-        [self.view addSubview: mask];
-        [self.view bringSubviewToFront: mask];
-    }
 }
 
 -(void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
-    if (@available(iOS 11, *)) {
-        UIEdgeInsets insets = self.view.safeAreaInsets;
-        if (insets.bottom != 0) {
-            mask.hidden = false;
-            mask.frame = CGRectMake(0, self.view.bounds.size.height - insets.bottom, self.view.bounds.size.width, insets.bottom);
-            [self.view bringSubviewToFront: mask];
-        } else {
-            mask.hidden = true;
-        }
-    }
     if (controller.view != nil) {
         controller.view.frame = self.view.bounds;
     }
