@@ -338,18 +338,19 @@
 
 - (void)updateTopSummary
 {
-	self.navigationItem.prompt = nil;
 	if (!procs) {
+		self.navigationItem.prompt = nil;
 		statusLabel.text = nil;
 		return;
 	}
+	self.navigationItem.prompt = [NSString stringWithFormat:@"进程：%lu", (unsigned long)procs.count];
 	BOOL compact = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
 	if (@available(iOS 8, *))
 		compact = self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact;
 	CGFloat width = self.tableView.bounds.size.width - (compact ? 80.0 : 150.0);
 	statusLabel.frame = CGRectMake(0, 0, MAX(width, 1.0), 44.0);
-	statusLabel.text = [NSString stringWithFormat:@"进程：%lu  可用：%.1f MB\nCPU：%.1f%%",
-		(unsigned long)procs.count, (float)procs.memFree / 1024 / 1024, (float)procs.totalCpu / 10];
+	statusLabel.text = [NSString stringWithFormat:@"可用：%.1f MB\nCPU：%.1f%%",
+		(float)procs.memFree / 1024 / 1024, (float)procs.totalCpu / 10];
 }
 
 - (void)columnConfigChanged
