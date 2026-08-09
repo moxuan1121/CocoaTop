@@ -134,9 +134,9 @@
 		target:self action:@selector(refreshProcs:)];
 	statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width - (isPhone ? 80 : 150), 40)];
 	statusLabel.backgroundColor = [UIColor clearColor];
-	statusLabel.numberOfLines = 3;
+	statusLabel.numberOfLines = 1;
 	statusLabel.textAlignment = NSTextAlignmentLeft;
-	statusLabel.font = [UIFont systemFontOfSize:16.0];
+	statusLabel.font = [UIFont systemFontOfSize:15.0];
 	statusLabel.adjustsFontSizeToFitWidth = YES;
 	statusLabel.minimumScaleFactor = 0.75;
 	statusLabel.userInteractionEnabled = NO;
@@ -349,29 +349,15 @@
 
 - (void)updateTopSummary
 {
+	self.navigationItem.prompt = nil;
 	if (!procs) {
-		self.navigationItem.prompt = nil;
 		statusLabel.text = nil;
 		return;
 	}
-	// Reserve the native prompt height, while drawing all three equally styled
-	// statistics in the custom left-aligned label beside the menu button.
-	self.navigationItem.prompt = @" ";
-	BOOL compact = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
-	if (@available(iOS 8, *))
-		compact = self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact;
-	(void)compact;
 	[self.navigationController.navigationBar layoutIfNeeded];
 	[self layoutStatusLabel];
-	NSString *status = [NSString stringWithFormat:@"进程：%lu\n可用：%.1f MB\nCPU：%.1f%%",
+	statusLabel.text = [NSString stringWithFormat:@"进程：%lu  可用：%.1f MB  CPU：%.1f%%",
 		(unsigned long)procs.count, (float)procs.memFree / 1024 / 1024, (float)procs.totalCpu / 10];
-	NSMutableParagraphStyle *paragraph = [NSMutableParagraphStyle new];
-	paragraph.alignment = NSTextAlignmentLeft;
-	paragraph.lineSpacing = 1.0;
-	statusLabel.attributedText = [[NSAttributedString alloc] initWithString:status attributes:@{
-		NSFontAttributeName: [UIFont systemFontOfSize:16.0],
-		NSParagraphStyleAttributeName: paragraph
-	}];
 }
 
 - (void)columnConfigChanged
