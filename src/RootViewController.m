@@ -384,7 +384,9 @@
 {
 	if (!footer) return;
 	UINavigationController *navigationController = self.navigationController;
-	CGFloat height = navigationController.view.safeAreaInsets.top;
+	CGFloat height = 0;
+	if (@available(iOS 11, *))
+		height = navigationController.view.safeAreaInsets.top;
 	BOOL showSummary = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ShowFooter"] boolValue];
 	footer.hidden = !showSummary || height <= 0;
 	if (!footer.hidden) {
@@ -411,7 +413,9 @@
 	sortDescending = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"SortDescending"] boolValue];
 	[footer removeFromSuperview];
 	header = [GridHeaderView headerWithColumns:columns size:CGSizeMake(self.tableView.bounds.size.width, self.tableView.sectionHeaderHeight)];
-	CGFloat summaryHeight = MAX(self.navigationController.view.safeAreaInsets.top, 1);
+	CGFloat summaryHeight = 1;
+	if (@available(iOS 11, *))
+		summaryHeight = MAX(self.navigationController.view.safeAreaInsets.top, 1);
 	footer = [GridHeaderView footerWithColumns:columns size:CGSizeMake(self.tableView.bounds.size.width, summaryHeight)];
 	[header sortColumnOld:nil New:sortColumn desc:sortDescending];
 	[header addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(sortHeader:)]];
@@ -482,8 +486,8 @@
 	if (timer.isValid)
 		[timer invalidate];
 	header = nil;
-\t[footer removeFromSuperview];
-\tfooter = nil;
+	[footer removeFromSuperview];
+	footer = nil;
 	columns = nil;
 }
 
