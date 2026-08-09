@@ -511,7 +511,8 @@
 	if (timer.isValid)
 		[timer invalidate];
 	header = nil;
-	[topSummaryLabel removeFromSuperview];\n\ttopSummaryLabel = nil;
+	[topSummaryLabel removeFromSuperview];
+	topSummaryLabel = nil;
 	columns = nil;
 }
 
