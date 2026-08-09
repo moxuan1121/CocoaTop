@@ -343,7 +343,7 @@
 	if (!navigationBar || statusLabel.superview != navigationBar)
 		return;
 	CGFloat sideInset = 55.0;
-	statusLabel.frame = CGRectMake(sideInset, -1.0, MAX(CGRectGetWidth(navigationBar.bounds) - sideInset * 2, 1.0),
+	statusLabel.frame = CGRectMake(sideInset, -2.0, MAX(CGRectGetWidth(navigationBar.bounds) - sideInset * 2, 1.0),
 		CGRectGetHeight(navigationBar.bounds));
 }
 
