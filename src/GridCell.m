@@ -61,14 +61,6 @@
 @end
 */
 
-static bool psIsUserApp(PSProc *proc)
-{
-	if (!proc.app || !proc.executable)
-		return false;
-	return [proc.executable rangeOfString:@"/Application/"].location != NSNotFound;
-}
-
-
 @implementation GridTableCell
 
 + (NSString *)reuseIdWithIcon:(bool)withicon
@@ -100,7 +92,7 @@ static bool psIsUserApp(PSProc *proc)
 	if (self.dividers)
 		for (UIView *item in self.dividers) [item removeFromSuperview];
 	// Create new views
-	self.labels = [NSMutableArray arrayWithCapacity:columns.count-1];
+	self.labels = [NSMutableArray arrayWithCapacity:columns.count > 0 ? columns.count - 1 : 0];
 	self.dividers = [NSMutableArray arrayWithCapacity:columns.count];
 	self.extendArgsLabel = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"FullWidthCommandLine"] boolValue];
 	self.colorDiffs = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ColorDiffs"] boolValue];
@@ -160,8 +152,10 @@ static bool psIsUserApp(PSProc *proc)
 - (void)updateWithProc:(PSProc *)proc columns:(NSArray *)columns
 {
 	self.textLabel.text = proc.name;
-	self.textLabel.textColor = proc.uid == 0 ? [UIColor colorWithRed:0.55 green:0.55 blue:1.0 alpha:1.0] :
-		psIsUserApp(proc) ? [UIColor colorWithRed:0.12 green:0.5 blue:0.12 alpha:1.0] : [UIColor blackColor];
+	if (@available(iOS 13, *))
+		self.textLabel.textColor = [UIColor labelColor];
+	else
+		self.textLabel.textColor = [UIColor blackColor];
 	self.detailTextLabel.text = [proc.executable stringByAppendingString:proc.args];
 	if (proc.icon)
 		self.imageView.image = proc.icon;
