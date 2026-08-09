@@ -134,9 +134,9 @@
 		target:self action:@selector(refreshProcs:)];
 	statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width - (isPhone ? 80 : 150), 40)];
 	statusLabel.backgroundColor = [UIColor clearColor];
-	statusLabel.numberOfLines = 2;
-	statusLabel.textAlignment = NSTextAlignmentCenter;
-	statusLabel.font = [UIFont systemFontOfSize:16.0];
+	statusLabel.numberOfLines = 3;
+	statusLabel.textAlignment = NSTextAlignmentLeft;
+	statusLabel.font = [UIFont systemFontOfSize:15.0];
 	statusLabel.adjustsFontSizeToFitWidth = YES;
 	statusLabel.minimumScaleFactor = 0.75;
 	self.navigationItem.leftBarButtonItems = @[self.navigationItem.leftBarButtonItem, [[UIBarButtonItem alloc] initWithCustomView:statusLabel]];
@@ -344,14 +344,16 @@
 		statusLabel.text = nil;
 		return;
 	}
-	self.navigationItem.prompt = [NSString stringWithFormat:@"进程：%lu", (unsigned long)procs.count];
+	// Reserve the native prompt height, while drawing all three equally styled
+	// statistics in the custom left-aligned label beside the menu button.
+	self.navigationItem.prompt = @" ";
 	BOOL compact = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
 	if (@available(iOS 8, *))
 		compact = self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact;
 	CGFloat width = self.tableView.bounds.size.width - (compact ? 80.0 : 150.0);
-	statusLabel.frame = CGRectMake(0, 0, MAX(width, 1.0), 44.0);
-	statusLabel.text = [NSString stringWithFormat:@"可用：%.1f MB\nCPU：%.1f%%",
-		(float)procs.memFree / 1024 / 1024, (float)procs.totalCpu / 10];
+	statusLabel.frame = CGRectMake(0, 0, MAX(width, 1.0), 66.0);
+	statusLabel.text = [NSString stringWithFormat:@"进程：%lu\n可用：%.1f MB\nCPU：%.1f%%",
+		(unsigned long)procs.count, (float)procs.memFree / 1024 / 1024, (float)procs.totalCpu / 10];
 }
 
 - (void)columnConfigChanged
