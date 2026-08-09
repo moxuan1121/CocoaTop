@@ -250,20 +250,6 @@
 	[procs filter:filter.text column:filterColumn];
 	[self.tableView reloadData];
 	[self updateTopSummary];
-	// Status bar
-// Also add: Uptime, CPU Freq, Cores, Cache L1/L2
-//    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-//		statusLabel.text = [NSString stringWithFormat:@"可用：%.1f MB  CPU：%.1f%%",
-//			(float)procs.memFree / 1024 / 1024,
-//			(float)procs.totalCpu / 10];
-//    } else {
-//		statusLabel.text = [NSString stringWithFormat:@"进程：%lu  线程：%lu  可用：%.1f/%.1f MB  CPU：%.1f%%",
-//			(unsigned long)procs.totalCount,
-//			(unsigned long)procs.threadCount,
-//			(float)procs.memFree / 1024 / 1024,
-//			(float)procs.memTotal / 1024 / 1024,
-//			(float)procs.totalCpu / 10];
-//    }
     bool shortLabel;
     if (@available(iOS 8, *)) {
         UIUserInterfaceSizeClass sizeClass;
@@ -371,12 +357,6 @@
 	UIPasteboard *pb = [UIPasteboard generalPasteboard];
 	pb.string =[p.executable lastPathComponent];
 	// 已静默复制到剪贴板（不提示）
-}
-
-- (void)scrollToBottom
-{
-	[self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[self.tableView numberOfRowsInSection:0]-1 inSection:0]
-		atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
 }
 
 - (void)updateTopSummary
