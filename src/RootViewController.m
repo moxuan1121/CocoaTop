@@ -338,7 +338,6 @@
 
 - (void)updateTopSummary
 {
-	BOOL showSummary = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ShowFooter"] boolValue];
 	self.navigationItem.prompt = nil;
 	if (!procs) {
 		statusLabel.text = nil;
@@ -349,19 +348,8 @@
 		compact = self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact;
 	CGFloat width = self.tableView.bounds.size.width - (compact ? 80.0 : 150.0);
 	statusLabel.frame = CGRectMake(0, 0, MAX(width, 1.0), 44.0);
-	NSString *status = compact
-		? [NSString stringWithFormat:@"可用：%.1f MB  CPU：%.1f%%", (float)procs.memFree / 1024 / 1024, (float)procs.totalCpu / 10]
-		: [NSString stringWithFormat:@"进程：%lu  线程：%lu  可用：%.1f/%.1f MB  CPU：%.1f%%", (unsigned long)procs.totalCount,
-			(unsigned long)procs.threadCount, (float)procs.memFree / 1024 / 1024,
-			(float)procs.memTotal / 1024 / 1024, (float)procs.totalCpu / 10];
-	if (!showSummary) {
-		statusLabel.text = status;
-		return;
-	}
-	NSString *memory = [NSByteCountFormatter stringFromByteCount:procs.memUsed countStyle:NSByteCountFormatterCountStyleMemory];
-	NSString *summary = [NSString stringWithFormat:@"进程 %lu · 内存 %@ · CPU %.1f%% · 运行 %d/%d",
-		(unsigned long)procs.count, memory, (float)procs.totalCpu / 10, procs.runningCount, procs.coresCount];
-	statusLabel.text = [NSString stringWithFormat:@"%@\n%@", summary, status];
+	statusLabel.text = [NSString stringWithFormat:@"可用：%.1f MB\nCPU：%.1f%%",
+		(float)procs.memFree / 1024 / 1024, (float)procs.totalCpu / 10];
 }
 
 - (void)columnConfigChanged
