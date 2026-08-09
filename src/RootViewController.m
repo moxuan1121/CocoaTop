@@ -135,7 +135,8 @@
 	statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width - (isPhone ? 80 : 150), 40)];
 	statusLabel.backgroundColor = [UIColor clearColor];
 	statusLabel.numberOfLines = 2;
-	statusLabel.font = [UIFont systemFontOfSize:13.0];
+	statusLabel.textAlignment = NSTextAlignmentCenter;
+	statusLabel.font = [UIFont systemFontOfSize:16.0];
 	statusLabel.adjustsFontSizeToFitWidth = YES;
 	statusLabel.minimumScaleFactor = 0.75;
 	self.navigationItem.leftBarButtonItems = @[self.navigationItem.leftBarButtonItem, [[UIBarButtonItem alloc] initWithCustomView:statusLabel]];
