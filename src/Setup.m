@@ -134,7 +134,7 @@ static NSString *psChineseSettingValue(NSString *value)
 - (void)viewDidLoad
 {
 	[super viewDidLoad];
-	self.navigationItem.title = @"Settings";
+	self.navigationItem.title = @"设置";
 	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"恢复默认" style:UIBarButtonItemStylePlain
 		target:self action:@selector(factoryReset)];
 	optionsList = @[
