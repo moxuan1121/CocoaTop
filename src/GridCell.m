@@ -236,20 +236,28 @@
         self.backgroundView = clearBackground;
         self.backgroundColor = [UIColor clearColor];
         self.contentView.backgroundColor = [UIColor clearColor];
-    } else if (@available(iOS 6.0, *)) {
-        self.backgroundView = [[NSClassFromString(@"_UITableViewHeaderFooterView") alloc] initWithFrame:self.bounds];
+    } else {
+        UIView *headerBackground = [[UIView alloc] initWithFrame:self.bounds];
+        if (@available(iOS 13, *))
+            headerBackground.backgroundColor = [UIColor secondarySystemBackgroundColor];
+        else
+            headerBackground.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1.0];
+        headerBackground.opaque = YES;
+        self.backgroundView = headerBackground;
+        self.contentView.backgroundColor = [UIColor clearColor];
+        self.contentView.clipsToBounds = YES;
     }
     
 	self.labels = [NSMutableArray arrayWithCapacity:columns.count];
 	self.dividers = [NSMutableArray arrayWithCapacity:columns.count];
 	NSUInteger totalCol = 0;
 	for (PSColumn *col in columns) {
-		UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(totalCol + 2, 0, col.width - 4, size.height)];
+		UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(totalCol + 4, 0, MAX(col.width - 8, 1), size.height)];
 		[self.labels addObject:label];
 		label.textAlignment = footer && col.getSummary ? col.align : NSTextAlignmentCenter;
-		label.font = footer ? [UIFont systemFontOfSize:16.0] : [UIFont boldSystemFontOfSize:16.0];
+		label.font = footer ? [UIFont systemFontOfSize:12.0] : [UIFont boldSystemFontOfSize:13.0];
 		label.adjustsFontSizeToFitWidth = YES;
-		label.minimumScaleFactor = 0.6;
+		label.minimumScaleFactor = 0.75;
 		label.autoresizingMask = UIViewAutoresizingFlexibleHeight;
 		label.text = footer ? @"-" : col.name;
         if (@available(iOS 13, *)) {
