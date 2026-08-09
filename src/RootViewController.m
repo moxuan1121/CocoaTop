@@ -58,8 +58,8 @@
 	switch (item) {
 	case 0: view = [[SetupViewController alloc] initWithStyle:UITableViewStyleGrouped]; break;
 	case 1: view = [[SetupColsViewController alloc] initWithStyle:UITableViewStyleGrouped]; break;
-	case 2: view = [[HtmlViewController alloc] initWithURL:@"guide" title:@"Quick Guide"]; break;
-	case 3: view = [[HtmlViewController alloc] initWithURL:@"story" title:@"The Story"]; break;
+	case 2: view = [[HtmlViewController alloc] initWithURL:@"guide" title:@"快速指南"]; break;
+	case 3: view = [[HtmlViewController alloc] initWithURL:@"story" title:@"关于 CocoaTop"]; break;
 	}
 	if (view)
 		[self.navigationController pushViewController:view animated:YES];
@@ -128,7 +128,7 @@
 	bool isPhone = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
 
 //	self.wantsFullScreenLayout = YES;
-	[self popupMenuWithItems:@[@"Settings", @"Columns", @"Quick Guide", @"About"] selected:-1 aligned:UIControlContentHorizontalAlignmentLeft];
+	[self popupMenuWithItems:@[@"设置", @"管理列", @"快速指南", @"关于"] selected:-1 aligned:UIControlContentHorizontalAlignmentLeft];
 	self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"UIButtonBarHamburger"] style:UIBarButtonItemStylePlain
 		target:self action:@selector(popupMenuToggle)];
 	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
@@ -207,12 +207,12 @@
 
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
 {
-	searchBar.placeholder = [NSString stringWithFormat:@"filter by %@ <tap another column>", filterColumn.fullname.lowercaseString];
+	searchBar.placeholder = [NSString stringWithFormat:@"筛选%@（点击其他列切换）", filterColumn.fullname];
 }
 
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
 {
-	searchBar.placeholder = [NSString stringWithFormat:@"filter by %@", filterColumn.fullname.lowercaseString];
+	searchBar.placeholder = [NSString stringWithFormat:@"筛选%@", filterColumn.fullname];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
@@ -254,11 +254,11 @@
 	// Status bar
 // Also add: Uptime, CPU Freq, Cores, Cache L1/L2
 //    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-//		statusLabel.text = [NSString stringWithFormat:@"Free: %.1f MB  CPU: %.1f%%",
+//		statusLabel.text = [NSString stringWithFormat:@"可用：%.1f MB  CPU：%.1f%%",
 //			(float)procs.memFree / 1024 / 1024,
 //			(float)procs.totalCpu / 10];
 //    } else {
-//		statusLabel.text = [NSString stringWithFormat:@"Processes: %lu   Threads: %lu   Free: %.1f/%.1f MB   CPU: %.1f%%",
+//		statusLabel.text = [NSString stringWithFormat:@"进程：%lu  线程：%lu  可用：%.1f/%.1f MB  CPU：%.1f%%",
 //			(unsigned long)procs.totalCount,
 //			(unsigned long)procs.threadCount,
 //			(float)procs.memFree / 1024 / 1024,
@@ -280,12 +280,12 @@
     
     if (shortLabel) {
         statusLabel.frame = CGRectMake(statusLabel.frame.origin.x, statusLabel.frame.origin.y, self.tableView.frame.size.width - 80, 40);
-        statusLabel.text = [NSString stringWithFormat:@"Free: %.1f MB  CPU: %.1f%%",
+        statusLabel.text = [NSString stringWithFormat:@"可用：%.1f MB  CPU：%.1f%%",
         (float)procs.memFree / 1024 / 1024,
         (float)procs.totalCpu / 10];
     } else {
         statusLabel.frame = CGRectMake(statusLabel.frame.origin.x, statusLabel.frame.origin.y, self.tableView.frame.size.width - 150, 40);
-        statusLabel.text = [NSString stringWithFormat:@"Processes: %lu   Threads: %lu   Free: %.1f/%.1f MB   CPU: %.1f%%",
+        statusLabel.text = [NSString stringWithFormat:@"进程：%lu  线程：%lu  可用：%.1f/%.1f MB  CPU：%.1f%%",
         (unsigned long)procs.totalCount,
         (unsigned long)procs.threadCount,
         (float)procs.memFree / 1024 / 1024,
@@ -380,6 +380,21 @@
 		atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
 }
 
+- (void)layoutTopSummary
+{
+	if (!footer) return;
+	UINavigationController *navigationController = self.navigationController;
+	CGFloat height = navigationController.view.safeAreaInsets.top;
+	BOOL showSummary = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ShowFooter"] boolValue];
+	footer.hidden = !showSummary || height <= 0;
+	if (!footer.hidden) {
+		footer.frame = CGRectMake(0, 0, navigationController.view.bounds.size.width, height);
+		if (footer.superview != navigationController.view)
+			[navigationController.view addSubview:footer];
+		[navigationController.view bringSubviewToFront:footer];
+	}
+}
+
 - (void)columnConfigChanged
 {
 	// When configId changes, all cells are reconfigured
@@ -394,11 +409,14 @@
 	sortColumn = [PSColumn psColumnWithTag:[[[CocoaTopPreferences sharedPreferences] objectForKey:@"SortColumn"] integerValue]];
 	if (!sortColumn) sortColumn = columns[0];
 	sortDescending = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"SortDescending"] boolValue];
+	[footer removeFromSuperview];
 	header = [GridHeaderView headerWithColumns:columns size:CGSizeMake(self.tableView.bounds.size.width, self.tableView.sectionHeaderHeight)];
-	footer = [GridHeaderView footerWithColumns:columns size:CGSizeMake(self.tableView.bounds.size.width, self.tableView.sectionFooterHeight)];
+	CGFloat summaryHeight = MAX(self.navigationController.view.safeAreaInsets.top, 1);
+	footer = [GridHeaderView footerWithColumns:columns size:CGSizeMake(self.tableView.bounds.size.width, summaryHeight)];
 	[header sortColumnOld:nil New:sortColumn desc:sortDescending];
 	[header addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(sortHeader:)]];
 	[footer addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(scrollToBottom)]];
+	[self layoutTopSummary];
 }
 
 - (void)reappearAllView {
@@ -419,18 +437,18 @@
 }
 
 - (void)viewDidLayoutSubviews {
-    [super viewDidLayoutSubviews];
+    [super viewDidLayoutSubviews];\n    [self layoutTopSummary];
     if (self.view.window != nil) {
         if (@available(iOS 8, *)) {
             if (lastHorizationWindowSizeClass != self.view.window.traitCollection.horizontalSizeClass || lastHorizationWindowWidth != self.view.bounds.size.width) {
                 if (self.view.window.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
                     statusLabel.frame = CGRectMake(statusLabel.frame.origin.x, statusLabel.frame.origin.y, self.tableView.frame.size.width - 80, 40);
-                    statusLabel.text = [NSString stringWithFormat:@"Free: %.1f MB  CPU: %.1f%%",
+                    statusLabel.text = [NSString stringWithFormat:@"可用：%.1f MB  CPU：%.1f%%",
                     (float)procs.memFree / 1024 / 1024,
                     (float)procs.totalCpu / 10];
                 } else {
                     statusLabel.frame = CGRectMake(statusLabel.frame.origin.x, statusLabel.frame.origin.y, self.tableView.frame.size.width - 150, 40);
-                    statusLabel.text = [NSString stringWithFormat:@"Processes: %lu   Threads: %lu   Free: %.1f/%.1f MB   CPU: %.1f%%",
+                    statusLabel.text = [NSString stringWithFormat:@"进程：%lu  线程：%lu  可用：%.1f/%.1f MB  CPU：%.1f%%",
                     (unsigned long)procs.totalCount,
                     (unsigned long)procs.threadCount,
                     (float)procs.memFree / 1024 / 1024,
@@ -462,8 +480,7 @@
 	[super viewDidDisappear:animated];
 	if (timer.isValid)
 		[timer invalidate];
-	header = nil;
-	footer = nil;
+	header = nil;\n\t[footer removeFromSuperview];\n\tfooter = nil;
 	columns = nil;
 }
 
@@ -491,14 +508,12 @@
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 { return [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ShowHeader"] boolValue] && !fullScreen ? header : nil; }
 
-- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
-{ return [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ShowFooter"] boolValue] && !fullScreen ? footer : nil; }
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section\n{ return nil; }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 { return [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ShowHeader"] boolValue] && !fullScreen ? self.tableView.sectionHeaderHeight : 0; }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
-{ return [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ShowFooter"] boolValue] && !fullScreen ? self.tableView.sectionFooterHeight : 0; }
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section\n{ return 0; }
 
 // Customize the number of sections in the table view.
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -576,8 +591,8 @@
 	// task_for_pid(mach_task_self(), pid, &task)
 	// task_terminate(task)
 	if (kill(proc.pid, sig)) {
-		NSString *msg = [NSString stringWithFormat:@"Error %d while terminating app", errno];
-		[[[UIAlertView alloc] initWithTitle:proc.name message:msg delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+		NSString *msg = [NSString stringWithFormat:@"结束应用时发生错误：%d", errno];
+		[[[UIAlertView alloc] initWithTitle:proc.name message:msg delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil] show];
 	}
 	// Refresh immediately to show process termination
 	tableView.editing = NO;
@@ -633,7 +648,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	return @"KILL";
+	return @"结束";
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForSwipeAccessoryButtonForRowAtIndexPath:(NSIndexPath *)indexPath
