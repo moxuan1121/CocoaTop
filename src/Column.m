@@ -89,16 +89,16 @@ NSString *psPortRightsString(uint32_t rights)
 NSString *psTaskRoleString(PSProc *proc)
 {
 	switch (proc.role) {
-	case TASK_RENICED:					return @"Reniced";
+	case TASK_RENICED:					return @"已调整优先级";
 	case TASK_UNSPECIFIED:				return @"-";
-	case TASK_FOREGROUND_APPLICATION:	return @"Foreground";
-	case TASK_BACKGROUND_APPLICATION:	return @"Background";
-	case TASK_CONTROL_APPLICATION:		return @"Controller";
-	case TASK_GRAPHICS_SERVER:			return @"GfxServer";
-	case TASK_THROTTLE_APPLICATION:		return @"Throttle";
-	case TASK_NONUI_APPLICATION:		return @"Inactive";
-	case TASK_DEFAULT_APPLICATION:		return @"Default";
-	default:							return @"Unknown";
+	case TASK_FOREGROUND_APPLICATION:	return @"前台";
+	case TASK_BACKGROUND_APPLICATION:	return @"后台";
+	case TASK_CONTROL_APPLICATION:		return @"控制器";
+	case TASK_GRAPHICS_SERVER:			return @"图形服务";
+	case TASK_THROTTLE_APPLICATION:		return @"受限";
+	case TASK_NONUI_APPLICATION:		return @"非活动";
+	case TASK_DEFAULT_APPLICATION:		return @"默认";
+	default:							return @"未知";
 	}
 }
 
