@@ -437,7 +437,8 @@
 }
 
 - (void)viewDidLayoutSubviews {
-    [super viewDidLayoutSubviews];\n    [self layoutTopSummary];
+    [super viewDidLayoutSubviews];
+    [self layoutTopSummary];
     if (self.view.window != nil) {
         if (@available(iOS 8, *)) {
             if (lastHorizationWindowSizeClass != self.view.window.traitCollection.horizontalSizeClass || lastHorizationWindowWidth != self.view.bounds.size.width) {
@@ -480,7 +481,9 @@
 	[super viewDidDisappear:animated];
 	if (timer.isValid)
 		[timer invalidate];
-	header = nil;\n\t[footer removeFromSuperview];\n\tfooter = nil;
+	header = nil;
+\t[footer removeFromSuperview];
+\tfooter = nil;
 	columns = nil;
 }
 
@@ -508,12 +511,14 @@
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 { return [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ShowHeader"] boolValue] && !fullScreen ? header : nil; }
 
-- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section\n{ return nil; }
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+{ return nil; }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 { return [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ShowHeader"] boolValue] && !fullScreen ? self.tableView.sectionHeaderHeight : 0; }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section\n{ return 0; }
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{ return 0; }
 
 // Customize the number of sections in the table view.
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
