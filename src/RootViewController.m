@@ -136,7 +136,7 @@
 	statusLabel.backgroundColor = [UIColor clearColor];
 	statusLabel.numberOfLines = 1;
 	statusLabel.textAlignment = NSTextAlignmentLeft;
-	statusLabel.font = [UIFont systemFontOfSize:15.0];
+	statusLabel.font = [UIFont boldSystemFontOfSize:15.0];
 	statusLabel.adjustsFontSizeToFitWidth = YES;
 	statusLabel.minimumScaleFactor = 0.75;
 	statusLabel.userInteractionEnabled = NO;
@@ -425,12 +425,19 @@
     [self reappearAllView];
 }
 
+- (void)viewWillDisappear:(BOOL)animated
+{
+	[super viewWillDisappear:animated];
+	// The label belongs to this screen, not to the shared navigation bar.
+	// Remove it before the transition starts to avoid covering the next page.
+	[statusLabel removeFromSuperview];
+}
+
 - (void)viewDidDisappear:(BOOL)animated
 {
 	[super viewDidDisappear:animated];
 	if (timer.isValid)
 		[timer invalidate];
-	[statusLabel removeFromSuperview];
 	header = nil;
 	self.navigationItem.prompt = nil;
 	columns = nil;
