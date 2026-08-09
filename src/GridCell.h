@@ -20,9 +20,6 @@
 
 @interface GridHeaderView : UITableViewHeaderFooterView
 @property (strong) NSMutableArray *labels;
-@property (strong) NSMutableArray *dividers;
 + (instancetype)headerWithColumns:(NSArray *)columns size:(CGSize)size;
-+ (instancetype)footerWithColumns:(NSArray *)columns size:(CGSize)size;
 - (void)sortColumnOld:(PSColumn *)oldCol New:(PSColumn *)newCol desc:(BOOL)desc;
-- (void)updateSummaryWithColumns:(NSArray *)columns procs:(PSProcArray *)procs;
 @end
