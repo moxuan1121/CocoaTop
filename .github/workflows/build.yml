@@ -1,65 +1,71 @@
-name: CI
+name: Build RootHide package
 
-on: [push]
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - bootstrap
+      - agent/roothide-bootstrap-fixes
+    paths:
+      - "src/**"
+      - ".github/workflows/build.yml"
+  pull_request:
+    branches:
+      - bootstrap
+    paths:
+      - "src/**"
+      - ".github/workflows/build.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: roothide-package-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  THEOS: ${{ github.workspace }}/theos
 
 jobs:
   build:
-
-    runs-on: macOS-latest
+    name: Build RootHide deb
+    runs-on: macos-14
+    timeout-minutes: 30
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    
-    - name: prepare environment
-      run: |
-        brew install ldid make
-        echo "THEOS=/Users/runner/work/CocoaTop/CocoaTop/theos" >> $GITHUB_ENV
-        echo "PATH=/usr/local/opt/make/libexec/gnubin:$PATH" >> $GITHUB_ENV
-        
-    
-    - name: verify updated cache
-      id: verify-cache
-      run: |
-        echo "::set-output name=heads::`git ls-remote https://github.com/theos/theos | head -n 1 | cut -f 1`-`git ls-remote https://github.com/xybp888/iOS-SDKs | head -n 1 | cut -f 1`"
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-    - name: use cache
-      id: cache
-      uses: actions/cache@v2
-      with:
-        path: /Users/runner/work/CocoaTop/CocoaTop/theos
-        key: ${{ runner.os }}-${{ steps.verify-cache.outputs.heads }}
+      - name: Install Theos dependencies
+        run: brew install ldid make xz
 
-    - name: get theos
-      if: steps.cache.outputs.cache-hit != 'true'
-      uses: actions/checkout@v2
-      with:
-        submodules: recursive
-        path: 'theos'
-        repository: theos/theos
+      - name: Install RootHide Theos and required SDK
+        env:
+          CI: "true"
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/roothide/theos/master/bin/install-theos)"
+          test -f "$THEOS/makefiles/common.mk"
+          "$THEOS/bin/install-sdk" iPhoneOS14.5
+          test -d "$THEOS/sdks/iPhoneOS14.5.sdk"
 
-    - name: get sdks
-      if: steps.cache.outputs.cache-hit != 'true'
-      run: |
-        curl -LO https://github.com/xybp888/iOS-SDKs/archive/master.zip
-        TMP=$(mktemp -d)
-        unzip -q master.zip -d $TMP
-        if [ ! -d "/Users/runner/work/CocoaTop/CocoaTop/theos/sdks" ]; then
-          mkdir /Users/runner/work/CocoaTop/CocoaTop/theos/sdks
-        fi
-        mv $TMP/iOS-SDKs-master/*.sdk /Users/runner/work/CocoaTop/CocoaTop/theos/sdks
-        rm -r master.zip $TMP
+      - name: Build RootHide package
+        env:
+          THEOS_PACKAGE_SCHEME: roothide
+        run: |
+          export PATH="$(brew --prefix make)/libexec/gnubin:$PATH"
+          make -C src clean
+          make -C src package FINALPACKAGE=1
+          test ! -e src/.theos/_/DEBIAN/preinst
+          find src/packages -type f -name "*.deb" -print
+          test -n "$(find src/packages -type f -name "*.deb" -print -quit)"
 
-    - name: actual build
-      run: |
-        cd src
-        mkdir -p packages
-        rm -f packages/*
-        make package FINALPACKAGE=1
-
-    - name: upload deb
-      uses: actions/upload-artifact@v2.2.0
-      with:
-        name: 'Package'
-        path: ${{ github.workspace }}/src/packages/*.deb
+      - name: Upload RootHide deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: CocoaTop-RootHide
+          path: src/packages/*.deb
+          if-no-files-found: error
+          retention-days: 14
