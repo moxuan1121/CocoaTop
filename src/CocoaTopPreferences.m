@@ -1,7 +1,8 @@
 #import "CocoaTopPreferences.h"
 #import "roothide.h"
 
-#define COCOATOP_PREFERENCES_PLIST jbroot(@"/var/mobile/Library/Preferences/cn.zqbb.ccatop.plist")
+#define COCOATOP_PREFERENCES_PLIST jbroot(@"/var/mobile/Library/Preferences/cn.moxuan.ccatop.plist")
+#define COCOATOP_LEGACY_PREFERENCES_PLIST jbroot(@"/var/mobile/Library/Preferences/cn.zqbb.ccatop.plist")
 
 static NSDictionary *CocoaTopDefaultPreferences(void)
 {
@@ -44,8 +45,13 @@ static NSDictionary *CocoaTopDefaultPreferences(void)
 - (instancetype)init
 {
 	self = [super init];
-	if (self)
-		_values = [[NSDictionary dictionaryWithContentsOfFile:COCOATOP_PREFERENCES_PLIST] mutableCopy] ?: [NSMutableDictionary dictionary];
+	if (self) {
+		_values = [[NSDictionary dictionaryWithContentsOfFile:COCOATOP_PREFERENCES_PLIST] mutableCopy];
+		if (!_values)
+			_values = [[NSDictionary dictionaryWithContentsOfFile:COCOATOP_LEGACY_PREFERENCES_PLIST] mutableCopy];
+		if (!_values)
+			_values = [NSMutableDictionary dictionary];
+	}
 	return self;
 }
 
