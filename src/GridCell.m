@@ -61,14 +61,6 @@
 @end
 */
 
-static bool psIsUserApp(PSProc *proc)
-{
-	if (!proc.app || !proc.executable)
-		return false;
-	return [proc.executable rangeOfString:@"/Application/"].location != NSNotFound;
-}
-
-
 @implementation GridTableCell
 
 + (NSString *)reuseIdWithIcon:(bool)withicon
@@ -100,7 +92,7 @@ static bool psIsUserApp(PSProc *proc)
 	if (self.dividers)
 		for (UIView *item in self.dividers) [item removeFromSuperview];
 	// Create new views
-	self.labels = [NSMutableArray arrayWithCapacity:columns.count-1];
+	self.labels = [NSMutableArray arrayWithCapacity:columns.count > 0 ? columns.count - 1 : 0];
 	self.dividers = [NSMutableArray arrayWithCapacity:columns.count];
 	self.extendArgsLabel = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"FullWidthCommandLine"] boolValue];
 	self.colorDiffs = [[[CocoaTopPreferences sharedPreferences] objectForKey:@"ColorDiffs"] boolValue];
@@ -160,8 +152,10 @@ static bool psIsUserApp(PSProc *proc)
 - (void)updateWithProc:(PSProc *)proc columns:(NSArray *)columns
 {
 	self.textLabel.text = proc.name;
-	self.textLabel.textColor = proc.uid == 0 ? [UIColor colorWithRed:0.55 green:0.55 blue:1.0 alpha:1.0] :
-		psIsUserApp(proc) ? [UIColor colorWithRed:0.12 green:0.5 blue:0.12 alpha:1.0] : [UIColor blackColor];
+	if (@available(iOS 13, *))
+		self.textLabel.textColor = [UIColor labelColor];
+	else
+		self.textLabel.textColor = [UIColor blackColor];
 	self.detailTextLabel.text = [proc.executable stringByAppendingString:proc.args];
 	if (proc.icon)
 		self.imageView.image = proc.icon;
@@ -233,25 +227,30 @@ static bool psIsUserApp(PSProc *proc)
 
 @implementation GridHeaderView
 
-- (instancetype)initWithColumns:(NSArray *)columns size:(CGSize)size footer:(bool)footer
+- (instancetype)initWithColumns:(NSArray *)columns size:(CGSize)size
 {
-    if (@available(iOS 6.0, *)) {
-        self = [super initWithReuseIdentifier:@"Header"];
-        self.backgroundView = [[NSClassFromString(@"_UITableViewHeaderFooterView") alloc] initWithFrame:self.bounds];
-    } else {
-        self = [super initWithReuseIdentifier:@"Header"];
-    }
+    self = [super initWithReuseIdentifier:@"Header"];
+    UIView *headerBackground = [[UIView alloc] initWithFrame:self.bounds];
+    if (@available(iOS 13, *))
+        headerBackground.backgroundColor = [UIColor secondarySystemBackgroundColor];
+    else
+        headerBackground.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1.0];
+    headerBackground.opaque = YES;
+    self.backgroundView = headerBackground;
+    self.contentView.backgroundColor = [UIColor clearColor];
+    self.contentView.clipsToBounds = YES;
     
 	self.labels = [NSMutableArray arrayWithCapacity:columns.count];
-	self.dividers = [NSMutableArray arrayWithCapacity:columns.count];
 	NSUInteger totalCol = 0;
 	for (PSColumn *col in columns) {
-		UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(totalCol + 2, 0, col.width - 4, size.height)];
+		UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(totalCol + 4, 0, MAX(col.width - 8, 1), size.height)];
 		[self.labels addObject:label];
-		label.textAlignment = footer && col.getSummary ? col.align : NSTextAlignmentCenter;
-		label.font = footer && col != columns[0] ? [UIFont systemFontOfSize:12.0] : [UIFont boldSystemFontOfSize:16.0];
+		label.textAlignment = NSTextAlignmentCenter;
+		label.font = [UIFont boldSystemFontOfSize:13.0];
 		label.adjustsFontSizeToFitWidth = YES;
-		label.text = footer ? @"-" : col.name;
+		label.minimumScaleFactor = 0.75;
+		label.autoresizingMask = UIViewAutoresizingFlexibleHeight;
+		label.text = col.name;
         if (@available(iOS 13, *)) {
             label.textColor = [UIColor labelColor];
         } else {
@@ -273,14 +272,25 @@ static bool psIsUserApp(PSProc *proc)
 	return self;
 }
 
-+ (instancetype)headerWithColumns:(NSArray *)columns size:(CGSize)size
+- (void)layoutSubviews
 {
-	return [[GridHeaderView alloc] initWithColumns:columns size:size footer:NO];
+    [super layoutSubviews];
+
+    // UITableViewHeaderFooterView may inset contentView on newer iOS versions.
+    // Keep the grid titles vertically centred inside the full header height.
+    self.backgroundView.frame = self.bounds;
+    self.contentView.frame = self.bounds;
+    for (UILabel *label in self.labels) {
+        CGRect frame = label.frame;
+        frame.origin.y = 0;
+        frame.size.height = CGRectGetHeight(self.bounds);
+        label.frame = frame;
+    }
 }
 
-+ (instancetype)footerWithColumns:(NSArray *)columns size:(CGSize)size
++ (instancetype)headerWithColumns:(NSArray *)columns size:(CGSize)size
 {
-	return [[GridHeaderView alloc] initWithColumns:columns size:size footer:YES];
+	return [[GridHeaderView alloc] initWithColumns:columns size:size];
 }
 
 - (void)sortColumnOld:(PSColumn *)oldCol New:(PSColumn *)newCol desc:(BOOL)desc
@@ -300,15 +310,6 @@ static bool psIsUserApp(PSProc *proc)
         label.textColor = self.tintColor;
 		label.text = [newCol.name stringByAppendingString:(desc ? @"\u25BC" : @"\u25B2")];
 	}
-}
-
-- (void)updateSummaryWithColumns:(NSArray *)columns procs:(PSProcArray *)procs
-{
-	for (PSColumn *col in columns)
-		if (col.getSummary) {
-			UILabel *label = (UILabel *)[self viewWithTag:col.tag + 1];
-			if (label) label.text = col.getSummary(procs);
-		}
 }
 
 @end

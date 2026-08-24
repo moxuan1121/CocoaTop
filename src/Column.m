@@ -89,16 +89,16 @@ NSString *psPortRightsString(uint32_t rights)
 NSString *psTaskRoleString(PSProc *proc)
 {
 	switch (proc.role) {
-	case TASK_RENICED:					return @"Reniced";
+	case TASK_RENICED:					return @"已调整优先级";
 	case TASK_UNSPECIFIED:				return @"-";
-	case TASK_FOREGROUND_APPLICATION:	return @"Foreground";
-	case TASK_BACKGROUND_APPLICATION:	return @"Background";
-	case TASK_CONTROL_APPLICATION:		return @"Controller";
-	case TASK_GRAPHICS_SERVER:			return @"GfxServer";
-	case TASK_THROTTLE_APPLICATION:		return @"Throttle";
-	case TASK_NONUI_APPLICATION:		return @"Inactive";
-	case TASK_DEFAULT_APPLICATION:		return @"Default";
-	default:							return @"Unknown";
+	case TASK_FOREGROUND_APPLICATION:	return @"前台";
+	case TASK_BACKGROUND_APPLICATION:	return @"后台";
+	case TASK_CONTROL_APPLICATION:		return @"控制器";
+	case TASK_GRAPHICS_SERVER:			return @"图形服务";
+	case TASK_THROTTLE_APPLICATION:		return @"受限";
+	case TASK_NONUI_APPLICATION:		return @"非活动";
+	case TASK_DEFAULT_APPLICATION:		return @"默认";
+	default:							return @"未知";
 	}
 }
 
@@ -154,6 +154,149 @@ NSString *psProcessCpuTime(unsigned int ptime)
 	unsigned int hours = ptime/100/60/60;
 	return hours ? [NSString stringWithFormat:@"%u:%02u:%02u.%02u", hours, (ptime / 6000) % 60, (ptime / 100) % 60, ptime % 100]
 				 : [NSString stringWithFormat:@"%u:%02u.%02u", ptime / 6000, (ptime / 100) % 60, ptime % 100];
+}
+
+
+static NSString *psChineseColumnString(NSString *value)
+{
+	if (!value.length) return value;
+	static NSDictionary *translations;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		translations = @{
+			@"Command line": @"命令行", @"PID": @"PID", @"PPID": @"父PID", @"%": @"CPU%",
+			@"Time": @"时间", @"S": @"状态", @"Flags": @"标志", @"RMem": @"内存",
+			@"VSize": @"虚拟内存", @"User": @"用户", @"Group": @"用户组", @"TTY": @"终端",
+			@"Thr": @"线程", @"Ports": @"端口", @"Mach": @"Mach调用", @"BSD": @"BSD调用",
+			@"CSw": @"切换", @"Prio": @"优先级", @"BPri": @"基础优先级", @"Nice": @"Nice",
+			@"Role": @"角色", @"MSent": @"发送", @"MRecv": @"接收", @"FDs": @"文件",
+			@"Sock": @"套接字", @"NetRx": @"网络接收", @"NetTx": @"网络发送",
+			@"WInt": @"中断唤醒", @"WIdle": @"空闲唤醒", @"WTmr": @"定时唤醒",
+			@"RMax": @"内存峰值", @"Phys": @"物理内存", @"DiskR": @"磁盘读取",
+			@"DiskW": @"磁盘写入", @"Column": @"项目", @"Value": @"数值",
+			@"Name / Dispatch Queue": @"名称/调度队列", @"Open file/socket": @"文件/套接字",
+			@"Type": @"类型", @"F": @"标志", @"Name": @"名称", @"Connection": @"连接",
+			@"R": @"权限", @"Mapped module": @"映射模块", @"Address": @"地址",
+			@"Size": @"大小", @"Ref": @"引用",
+			@"%CPU Usage": @"CPU 使用率", @"Base Process Priority": @"进程基础优先级",
+			@"BSD System Calls (Delta)": @"BSD 系统调用（增量）", @"BSD Total System Calls": @"BSD 系统调用总数",
+			@"Bundle Display Name": @"应用显示名称", @"Bundle Identifier": @"应用标识符",
+			@"Bundle Name": @"应用名称", @"Bundle Version": @"应用版本", @"Column Value": @"项目数值",
+			@"Compiler Name": @"编译器名称", @"Context Switches (Delta)": @"上下文切换（增量）",
+			@"Context Switches Total": @"上下文切换总数", @"Descriptor Type": @"描述符类型",
+			@"Development Platform Version": @"开发平台版本", @"Development SDK Version": @"开发 SDK 版本",
+			@"Device and iNode of Module on Disk": @"模块设备与 iNode", @"Disk I/O Bytes Read Delta": @"磁盘读取字节（增量）",
+			@"Disk I/O Bytes Written Delta": @"磁盘写入字节（增量）", @"Disk I/O Total Bytes Read": @"磁盘读取总字节",
+			@"Disk I/O Total Bytes Written": @"磁盘写入总字节", @"File Descriptor": @"文件描述符",
+			@"Filename or Socket Address": @"文件名或套接字地址", @"Group Id": @"用户组 ID",
+			@"Idle Wakeups (Delta)": @"空闲唤醒（增量）", @"Information Column": @"信息项目",
+			@"Interrupt Wakeups (Delta)": @"中断唤醒（增量）", @"Loaded Virtual Address": @"加载虚拟地址",
+			@"Mach Actual Threads Priority": @"Mach 线程实际优先级", @"Mach Messages Received": @"Mach 消息接收数",
+			@"Mach Messages Sent": @"Mach 消息发送数", @"Mach Ports": @"Mach 端口",
+			@"Mach System Calls (Delta)": @"Mach 系统调用（增量）", @"Mach Task Role": @"Mach 任务角色",
+			@"Mach Task State": @"Mach 任务状态", @"Mach Thread State": @"Mach 线程状态",
+			@"Mach Total System Calls": @"Mach 系统调用总数", @"Mapped size": @"映射大小",
+			@"Maximum Resident Memory Usage": @"最大常驻内存", @"Minimum OS Version": @"最低系统版本",
+			@"Module Filename": @"模块文件名", @"More Data": @"更多数据", @"Net Bytes Received Delta": @"网络接收字节（增量）",
+			@"Net Bytes Sent Delta": @"网络发送字节（增量）", @"Net Total Bytes Received": @"网络接收总字节",
+			@"Net Total Bytes Sent": @"网络发送总字节", @"Net Total Packets Received": @"网络接收总包数",
+			@"Net Total Packets Sent": @"网络发送总包数", @"Open File/Socket Descriptors": @"打开的文件/套接字描述符",
+			@"Open Flags": @"打开标志", @"Open Socket Descriptors": @"打开的套接字描述符",
+			@"Parent PID": @"父进程 PID", @"Physical Memory Footprint": @"物理内存占用",
+			@"Port Connection": @"端口连接", @"Port Name": @"端口名称", @"Process ID": @"进程 ID",
+			@"Process Nice Value": @"进程 Nice 值", @"Process Time": @"进程 CPU 时间",
+			@"Process Uptime": @"进程运行时间", @"Raw Process Flags (Hex)": @"进程原始标志（十六进制）",
+			@"Reference count": @"引用计数", @"Resident Memory Usage": @"常驻内存占用",
+			@"Rights": @"权限", @"Terminal": @"终端", @"Thread Count": @"线程数",
+			@"Thread ID": @"线程 ID", @"Thread Name & Dispatch Queue": @"线程名称与调度队列",
+			@"Thread Priority": @"线程优先级", @"Thread Time": @"线程 CPU 时间",
+			@"Timer Wakeups (Delta)": @"定时器唤醒（增量）", @"User Id": @"用户 ID",
+			@"Virtual Address Space Usage": @"虚拟地址空间占用"
+		};
+	});
+	return translations[value] ?: value;
+}
+
+static NSString *psChineseColumnDescription(NSString *fullname, NSString *fallback)
+{
+	if (!fullname.length) return fallback;
+	static NSDictionary *descriptions;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		descriptions = @{
+			@"Command line": @"进程的完整可执行路径和启动参数。",
+			@"Process ID": @"系统分配给进程的唯一标识符。",
+			@"Parent PID": @"创建该进程的父进程 ID。",
+			@"%CPU Usage": @"进程所有线程当前使用的 CPU 百分比。",
+			@"Process Time": @"进程累计消耗的 CPU 时间。",
+			@"Mach Task State": @"当前 Mach 任务状态。",
+			@"Raw Process Flags (Hex)": @"以十六进制显示的原始进程标志。",
+			@"Resident Memory Usage": @"进程当前占用的常驻物理内存。",
+			@"Virtual Address Space Usage": @"进程占用的虚拟地址空间。",
+			@"User Id": @"进程当前所属的用户 ID。",
+			@"Group Id": @"进程当前所属的用户组 ID。",
+			@"Terminal": @"进程关联的控制终端。",
+			@"Thread Count": @"进程当前拥有的线程数量。",
+			@"Mach Ports": @"进程当前打开的 Mach 端口数量。",
+			@"Mach System Calls (Delta)": @"每次刷新间隔内新增的 Mach 系统调用数。",
+			@"BSD System Calls (Delta)": @"每次刷新间隔内新增的 BSD 系统调用数。",
+			@"Context Switches (Delta)": @"每次刷新间隔内发生的上下文切换数。",
+			@"Mach Actual Threads Priority": @"进程中线程的最高实际优先级。",
+			@"Base Process Priority": @"进程的基础调度优先级。",
+			@"Process Nice Value": @"影响进程调度优先级的 Nice 值。",
+			@"Mach Task Role": @"系统为该任务分配的运行角色。",
+			@"Mach Messages Sent": @"进程累计发送的 Mach 消息数。",
+			@"Mach Messages Received": @"进程累计接收的 Mach 消息数。",
+			@"Mach Total System Calls": @"进程累计执行的 Mach 系统调用数。",
+			@"BSD Total System Calls": @"进程累计执行的 BSD 系统调用数。",
+			@"Context Switches Total": @"进程累计发生的上下文切换数。",
+			@"Open File/Socket Descriptors": @"进程当前打开的文件和套接字描述符总数。",
+			@"Open Socket Descriptors": @"进程当前打开的套接字描述符数量。",
+			@"Bundle Identifier": @"应用的唯一 Bundle 标识符。",
+			@"Bundle Name": @"应用包内部名称。",
+			@"Bundle Display Name": @"桌面上显示的应用名称。",
+			@"Bundle Version": @"应用内部构建版本。",
+			@"Minimum OS Version": @"应用声明支持的最低系统版本。",
+			@"Development SDK Version": @"构建应用时使用的 SDK 版本。",
+			@"Development Platform Version": @"构建应用时使用的平台版本。",
+			@"Compiler Name": @"构建应用时使用的编译器。",
+			@"Net Bytes Received Delta": @"每次刷新间隔内接收的网络字节数。",
+			@"Net Bytes Sent Delta": @"每次刷新间隔内发送的网络字节数。",
+			@"Net Total Bytes Received": @"进程启动后累计接收的网络字节数。",
+			@"Net Total Bytes Sent": @"进程启动后累计发送的网络字节数。",
+			@"Net Total Packets Received": @"进程启动后累计接收的网络数据包数。",
+			@"Net Total Packets Sent": @"进程启动后累计发送的网络数据包数。",
+			@"Interrupt Wakeups (Delta)": @"每次刷新间隔内的中断唤醒次数。",
+			@"Idle Wakeups (Delta)": @"每次刷新间隔内的空闲唤醒次数。",
+			@"Timer Wakeups (Delta)": @"每次刷新间隔内的定时器唤醒次数。",
+			@"Maximum Resident Memory Usage": @"进程启动后的常驻内存峰值。",
+			@"Physical Memory Footprint": @"系统统计的进程实际物理内存占用。",
+			@"Disk I/O Bytes Read Delta": @"每次刷新间隔内从磁盘读取的字节数。",
+			@"Disk I/O Bytes Written Delta": @"每次刷新间隔内写入磁盘的字节数。",
+			@"Disk I/O Total Bytes Read": @"进程启动后累计读取的磁盘字节数。",
+			@"Disk I/O Total Bytes Written": @"进程启动后累计写入的磁盘字节数。",
+			@"Process Uptime": @"从进程启动到现在经过的时间。",
+			@"Information Column": @"进程详细信息的项目名称。",
+			@"Column Value": @"对应信息项目的当前数值。",
+			@"Thread ID": @"线程的唯一标识符。",
+			@"Thread Time": @"线程累计消耗的 CPU 时间。",
+			@"Mach Thread State": @"线程当前的 Mach 状态。",
+			@"Thread Priority": @"线程当前的调度优先级。",
+			@"Thread Name & Dispatch Queue": @"线程名称及其关联的调度队列。",
+			@"File Descriptor": @"进程内部使用的文件描述符编号。",
+			@"Filename or Socket Address": @"描述符对应的文件路径或套接字地址。",
+			@"Descriptor Type": @"文件描述符的对象类型。",
+			@"Open Flags": @"打开该描述符时使用的标志。",
+			@"Port Name": @"Mach 端口名称。",
+			@"Port Connection": @"Mach 端口的连接对象。",
+			@"Rights": @"该端口拥有的访问权限。",
+			@"Module Filename": @"映射到进程地址空间的模块文件。",
+			@"Loaded Virtual Address": @"模块加载到的虚拟内存地址。",
+			@"Mapped size": @"模块映射到内存中的大小。",
+			@"Reference count": @"模块当前的引用计数。"
+		};
+	});
+	return descriptions[fullname] ?: fallback;
 }
 
 @implementation PSColumn
@@ -598,10 +741,18 @@ NSString *psProcessCpuTime(unsigned int ptime)
 	for (NSNumber* order in columnOrder) {
 		PSColumn *col = [PSColumn psColumnWithTag:order.unsignedIntegerValue];
 		if (!col) continue;
-		if (width < col.minwidth) break;
+		if (width < col.minwidth) {
+			// Keep one usable column even during an initially zero-width or
+			// extremely narrow split-screen layout.
+			if (shownCols.count == 0) {
+				col.width = MAX((NSInteger)width, 1);
+				[shownCols addObject:col];
+			}
+			break;
+		}
 		[shownCols addObject:col];
 		col.width = col.minwidth;
-		width -= col.width;
+		width = col.width >= width ? 0 : width - col.width;
 		if (col.style & ColumnStyleExtend)
 			extendedcol = col;
 	}
@@ -699,7 +850,7 @@ NSString *psProcessCpuTime(unsigned int ptime)
 			col.width = 0;
 		else
 			col.width = col.minwidth;
-		width -= col.width;
+		width = col.width >= width ? 0 : width - col.width;
 		if (col.style & ColumnStyleExtend)
 			extendedcol = col;
 	}
@@ -734,9 +885,9 @@ NSString *psProcessCpuTime(unsigned int ptime)
 	style:(column_style_t)style data:(PSColumnData)data floatData:(PSColumnFloat)floatData sort:(NSComparator)sort summary:(PSColumnData)summary color:(PSColumnColor)color descr:(NSString *)descr
 {
 	if (self = [super init]) {
-		self.name = name;
-		self.fullname = fullname;
-		self.descr = descr;
+		self.name = psChineseColumnString(name);
+		self.fullname = psChineseColumnString(fullname);
+		self.descr = psChineseColumnDescription(fullname, descr);
 		self.align = align;
 		self.minwidth = self.width = width;
 		self.getData = data;

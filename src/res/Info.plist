@@ -18,7 +18,7 @@
 	<key>CFBundleExecutable</key>
 	<string>CocoaTop</string>
 	<key>CFBundleIdentifier</key>
-	<string>cn.zqbb.ccatop</string>
+	<string>cn.moxuan.ccatop</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

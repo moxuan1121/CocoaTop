@@ -1,76 +1,17 @@
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="initial-scale=1;minimum-scale=1" />
-		<link rel="stylesheet" href="style.css" type="text/css" />
-		<title></title>
-	</head>
-	<body>
-		<h1>Quick Guide</h1>
-		<panel>
-		<fieldset>
-        <ul>
-            <li>Tap on a process to view its details, including threads, open files &amp; sockets, loaded modules, and summary.</li>
-            <li>Tap on a column header to sort by that column. Tap again to sort backwards.</li>
-            <li>Switch to fullscreen view and back by touching the display with two fingers.</li>
-            <li>Processes on a green background were recently created.</li>
-            <li>Processes on a red background have recently terminated.</li>
-            <li>To terminate (TERM) or kill a process (<font color=red>KILL</font>) swipe to the left. A SIGTERM signal gives the process an option 
-			to terminate voluntarily. A SIGKILL kills the process immediately, that's why it's a red button.</li>
-            <li>Numeric values are highlighted <font color=red>red</font> when they increase, and <font color=blue>blue</font> when they decrease.</li>
-            <li>Descriptions for all columns and their totals (the values at the bottom) are available in the column configuration 
-			pane &ndash; just tap the (i) icon.</li>
-        </ul>
-		</fieldset>
-		</panel>
-		<h1>Process Details: Threads</h1>
-		<panel>
-		<fieldset>
-		<p>Threads are displayed with the following color coding:<br>
-		<font color=red>&#x25A0;</font> - a thread is currently running.<br>
-		<font color=orange>&#x25A0;</font> - a thread is waiting on I/O in a system call (uninterruptible).<br>
-		<font color=brown>&#x25A0;</font> - a thread is halted or stopped.<br>
-		<font color=blue>&#x25A0;</font> - a thread is suspended.<br>
-		<font color=black>&#x25A0;</font> - a thread is idle (sleeping).<br>
-		<font color=darkgray>&#x25A0;</font> - thread state is unknown.
-		</p>
-		<p>A small 'i' in thread state column indicates that the thread is running an idle loop (used for putting a CPU core into 
-		sleep mode). Such threads can be seen in the kernel task.</p>
-		</fieldset>
-		</panel>
-		<h1>Process Details: Open Files &amp; Sockets</h1>
-		<panel>
-		<fieldset>
-		<p>Open file descriptors are displayed with the following color coding:<br>
-		<font color=black>&#x25A0;</font> - this is a regular file.<br>
-		<font color=green>&#x25A0;</font> - this is a network socket (TCP or UDP).<br>
-		<font color=blue>&#x25A0;</font> - this is a UNIX pipe.<br>
-		<font color=brown>&#x25A0;</font> - this is a UNIX socket or a kernel queue.<br>
-		<font color=orange>&#x25A0;</font> - this is a kernel control descriptor.<br>
-		<font color=red>&#x25A0;</font> - this is a kernel event descriptor.
-		</p>
-		</fieldset>
-		</panel>
-		<h1>Process Details: Mach Ports</h1>
-		<panel>
-		<fieldset>
-		<p>Open ports are displayed with the following color coding:<br>
-		<font color=green>&#x25A0;</font> - this port has SEND and RECEIVE rights.<br>
-		<font color=blue>&#x25A0;</font> - this port has a RECEIVE right.<br>
-		<font color=black>&#x25A0;</font> - this port has a SEND right.<br>
-		</p>
-		</fieldset>
-		</panel>
-		<h1>Process Details: Loaded Modules</h1>
-		<panel>
-		<fieldset>
-		<p>Loaded modules are displayed with the following color coding:<br>
-		<font color=black>&#x25A0;</font> - this module is loaded from a .dylib file. Mapped size and reference count are provided.<br>
-		<font color=darkgray>&#x25A0;</font> - this module is loaded from the dynamic library cache &ndash; a large file 
-		where all built-in system libraries (private and public) are combined to improve performance.
-		</p>
-		</fieldset>
-		</panel>
-	</body>
-</html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><link rel="stylesheet" href="style.css"><title>快速指南</title></head>
+<body>
+<h1>CocoaTop 快速指南</h1>
+<h2>进程列表</h2>
+<p>CocoaTop 会实时显示设备上的进程、CPU、内存、线程、端口、网络和磁盘活动。点击列标题可排序，再次点击可切换升序或降序。</p>
+<p>搜索框会按当前筛选列过滤内容。点击其他列后，筛选目标也会随之改变。</p>
+<h2>查看详情</h2>
+<p>点击任意进程可查看概览、线程、打开的文件、Mach 端口和已加载模块。右上角菜单用于切换详情模式。</p>
+<p>长按进程可复制可执行文件名；左滑进程可结束进程或调整 RootHide 注入状态。结束系统进程可能导致注销或重启，请谨慎操作。</p>
+<h2>界面操作</h2>
+<p>双指轻点列表可切换全屏。顶部显示实时可用内存和 CPU 使用率；顶部安全区显示当前各列汇总。</p>
+<h2>设置与列</h2>
+<p>“设置”中可以调整刷新间隔、第一列样式、路径缩短、变化高亮等选项。“管理列”中可以排序、启用或停用列，也可以载入预设布局。</p>
+<h2>说明</h2>
+<p>部分内核数据可能因系统版本、权限或 RootHide 配置而不可用，此时会显示“-”或空值。</p>
+</body></html>
